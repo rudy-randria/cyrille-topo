@@ -1,0 +1,64 @@
+/* Remise à zéro des styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    background-image: url('../images/madagascar-4.jpg');
+    background-size: cover; /* Pour que l'image couvre toute la zone */
+    background-position: center; /* Pour centrer l'image */
+    background-repeat: no-repeat; /* Pour éviter la répétition de l'image */
+    color: beige;
+}
+
+/* Styles de base pour les éléments de page */
+h1, h2, h3 {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+p {
+    margin-bottom: 20px;
+}
+
+a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+/* Styles pour la mise en page */
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.row::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.col {
+    float: left;
+    width: 50%;
+}
+
+/* Styles personnalisés */
+.header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+.footer {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+}

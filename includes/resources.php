@@ -12,4 +12,6 @@ echo '<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.mi
 
 // Inclure le JavaScript Bootstrap
 echo '<script src="../vendor/bootstrap-5.3.3-dist/js/bootstrap.min.js"></script>';
+
+
 ?>

@@ -5,8 +5,7 @@
 2. **Dossiers Principaux** :
    - `assets/` : Pour les ressources statiques comme les images, les fichiers CSS et JS.
    - `includes/` : Pour les fichiers PHP inclus dans plusieurs pages.
-   - `templates/` : Pour les fichiers de modèle réutilisables.
-   - `classes/` : Pour les classes PHP réutilisables.
+   - `templates/` : Pour les fichiers de modèle réutilisables.  
 
 3. **Modules Fonctionnels** :
    - `maps/` :

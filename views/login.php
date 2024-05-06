@@ -27,12 +27,11 @@ include_once('../includes/resources.php');
                             <label for="password" class="form-label">Mot de passe</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">Se connecter</button>
+                        <button type="submit" name="submit" class="btn btn-primary">Se connecter</button>
                     </form>
                 </div>
             </div>
         </div>
-        
     
 </body>
 </html>

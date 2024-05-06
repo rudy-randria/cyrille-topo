@@ -9,14 +9,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     // Récupérer les données du formulaire
     $username = $_POST['username'];
     $password = $_POST['password'];
-
     // Appeler une méthode de modèle pour vérifier les informations d'identification
     $userModel = new UserModel();
     $isValidUser = $userModel->verifyCredentials($username, $password);
 
     // Si les informations d'identification sont valides, rediriger vers la page d'accueil
     if ($isValidUser) {
-        header("Location: ../index.php");
+        header("Location: ../maps/maps.php");
         exit();
     } else {
         // Sinon, rediriger vers la page de connexion avec un message d'erreur

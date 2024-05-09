@@ -9,10 +9,10 @@ function connectedb(){
         define('BD_NAME', 'bd_centrale_rec');
     }
     if (!defined('users')) {
-        define('users', 'postgres');
+        define('users', 'users');
     }
      if (!defined('mdp')) {
-        define('mdp', 'novy');
+        define('mdp', '*****');
      }
 	try{
         $db = new PDO("pgsql:host=" . hoste . ";dbname=" . BD_NAME, users, strrev(mdp));

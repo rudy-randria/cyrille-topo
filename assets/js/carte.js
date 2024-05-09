@@ -180,23 +180,79 @@ var Hydrozonelayer = new ol.layer.Tile({
   visible: true
 }); map.addLayer(Hydrozonelayer);
 
-// var sourceWFS = new ol.source.Vector({
-//     format: new ol.format.GeoJSON(),
-//     url: function(extent) {
-//         return 'http://geoserver.gendarmerie.mg:8080/geoserver/wfs?service=WFS&' +
-//                'version=1.1.0&request=GetFeature&typename=M.Cyrille:limite_commune&' +
-//                'outputFormat=application/json&srsname='+projection+'&' +
-//                'bbox=' + extent.join(',') + ','+projection+'';
-//     },
-//     strategy: ol.loadingstrategy.bbox
-// });
+// features in this layer will be snapped to
+const baseVector = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    format: new ol.format.GeoJSON(),
+    url: '../assets/js/data.json',
+  }),
+  style: {
+    'fill-color': 'red',
+    'stroke-color': 'rgba(255, 0, 0, 0.9)',
+    'stroke-width': 0.5,
+  },
+});
 
-// var layerWFS = new ol.layer.Vector({
-//     source: sourceWFS
-// });
-// map.addLayer(layerWFS);
+// this is where the drawn features go
+const drawVector = new ol.layer.Vector({
+  source: new ol.source.Vector(),
+  style: {
+    'stroke-color': 'rgba(100, 255, 0, 1)',
+    'stroke-width': 2,
+    'fill-color': 'rgba(100, 255, 0, 0.3)',
+  },
+});
 
-      
+map.addLayer(baseVector);
+map.addLayer(drawVector);
+
+
+let drawInteraction;
+
+const snapInteraction = new ol.interaction.Snap({
+  source: baseVector.getSource(),
+});
+
+const typeSelect = document.getElementById('type');
+
+function addInteraction(type) {
+  // if (value !== 'None') {
+    drawInteraction = new ol.interaction.Draw({
+      type: type,
+      source: drawVector.getSource(),
+      trace: true,
+      traceSource: baseVector.getSource(),
+      style: {
+        'stroke-color': 'rgba(255, 255, 100, 0.5)',
+        'stroke-width': 1.5,
+        'fill-color': 'rgba(255, 255, 100, 0.25)',
+        'circle-radius': 6,
+        'circle-fill-color': 'rgba(255, 255, 100, 0.5)',
+      },
+    });
+    map.addInteraction(drawInteraction);
+    map.addInteraction(snapInteraction);
+  // }
+}
+var element = document.querySelector('.ol-outils');
+var areaButton = document.querySelector('.areaButton');
+var areaControl = new ol.control.Control({
+  element: element
+});
+
+var areaflag = false;
+areaButton.addEventListener("click", () => {
+  // désactiver les autres interactions
+  areaButton.classList.toggle("clicked");
+  areaflag = !areaflag;
+  document.getElementById('map').style.cursor="";
+  if (areaflag) {
+    addInteraction("Polygon");
+  } else {
+  }
+});
+map.addControl(areaControl);
+
 
 
 

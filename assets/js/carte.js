@@ -161,7 +161,7 @@ var Hydrolignelayer = new ol.layer.Tile({
   source: HydroligneSource,
   visible: true
 }); 
-  map.addLayer(Hydrolignelayer);
+  // map.addLayer(Hydrolignelayer);
 
 // couche Hydrographie linéaire
 var HydrozoneSource = new ol.source.TileWMS({
@@ -178,7 +178,32 @@ var HydrozoneSource = new ol.source.TileWMS({
 var Hydrozonelayer = new ol.layer.Tile({
   source: HydroligneSource,
   visible: true
-}); map.addLayer(Hydrozonelayer);
+}); 
+  // map.addLayer(Hydrozonelayer);
+
+
+var certificatSource = new ol.source.TileWMS({
+  url: "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms",
+  params: {
+    'LAYERS': 'M.Cyrille:certificats',
+    // 'STYLES': 'M.Cyrille:vw_plof',
+    'VERSION': '1.1.1',
+    'FORMAT': 'image/png',
+    // 'FORMAT_OPTIONS': "layout:style-editor-legend;fontAntiAliasing:true",
+    'RANDOM': 48810829,
+    'LEGEND_OPTIONS': 'forceLabels:on;fontAntiAliasing:true',
+    'EXCEPTIONS': 'application/vnd.ogc.se_inimage'
+  },
+  projection: projection,
+  serverType: 'geoserver',
+  ratio: 1
+});
+
+var certificatLayer = new ol.layer.Tile({
+  source: certificatSource,
+  visible: true
+});
+map.addLayer(certificatLayer);
 
 // features in this layer will be snapped to
 const baseVector = new ol.layer.Vector({
@@ -213,10 +238,9 @@ const snapInteraction = new ol.interaction.Snap({
   source: baseVector.getSource(),
 });
 
-const typeSelect = document.getElementById('type');
 
 function addInteraction(type) {
-  // if (value !== 'None') {
+  drawVector.getSource().clear();
     drawInteraction = new ol.interaction.Draw({
       type: type,
       source: drawVector.getSource(),
@@ -232,26 +256,78 @@ function addInteraction(type) {
     });
     map.addInteraction(drawInteraction);
     map.addInteraction(snapInteraction);
-  // }
+  
+  var validateButton = document.getElementById('validateButton');
+  var redrawButton = document.getElementById('redrawButton');
+  var confirmDiv = document.getElementById("confirmDiv");
+
+  var confirmOverlay = new ol.Overlay({
+    element: confirmDiv,
+    anchor: [10, 10],
+    autoPan: true,
+    autoPanAnimation: {
+      duration: 250,
+    },
+  });
+  map.addOverlay(confirmOverlay);
+
+  drawInteraction.on('drawend', function(evt) {
+    map.removeInteraction(drawInteraction);
+    map.removeInteraction(snapInteraction);
+    validateButton.style.display = 'block';
+    redrawButton.style.display = 'block';
+    confirmDiv.style.display = 'block';
+    var position = evt.feature.getGeometry().getLastCoordinate();
+    confirmOverlay.setPosition(position);
+
+    validateButton.addEventListener('click', function() {
+      var feature = evt.feature;
+      var wktWriter = new ol.format.WKT();
+      var geometry = feature.getGeometry();
+      var wkt = wktWriter.writeGeometry(geometry);
+      var area = geometry.getArea();
+      
+
+      map.removeInteraction(drawInteraction);
+      map.removeInteraction(snapInteraction);
+      // var geomvalue = "Polygon(("+ geometry.getCoordinates() +"))"
+      var geomvalue = wkt;
+
+      document.getElementById('geom').value = geomvalue;
+      document.getElementById('surface').value = area.toFixed(2);
+      document.getElementById("areaButton").innerHTML = 'Retracer';
+      validateButton.style.display = 'none';
+      redrawButton.style.display = 'none';
+      confirmDiv.style.display = 'none';
+
+    });
+
+    redrawButton.addEventListener('click', function(feature) {
+      drawVector.getSource().clear();
+
+      map.removeInteraction(drawInteraction);
+      addInteraction("Polygon");
+
+      validateButton.style.display = 'none';
+      redrawButton.style.display = 'none';
+      confirmDiv.style.display = 'none';
+    });
+  });
 }
-var element = document.querySelector('.ol-outils');
-var areaButton = document.querySelector('.areaButton');
+
+var element = document.getElementById('formDivDemande');
+var areaButton = document.getElementById('areaButton');
 var areaControl = new ol.control.Control({
   element: element
 });
 
-var areaflag = false;
 areaButton.addEventListener("click", () => {
   // désactiver les autres interactions
   areaButton.classList.toggle("clicked");
-  areaflag = !areaflag;
-  document.getElementById('map').style.cursor="";
-  if (areaflag) {
     addInteraction("Polygon");
-  } else {
-  }
 });
 map.addControl(areaControl);
+
 
 
 

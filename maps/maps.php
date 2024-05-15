@@ -64,8 +64,8 @@
         </button>
         <div class="collapse navbar-collapse" id="mynavbar">
           <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <span class="nav-link" onclick="afficherFormDemande()" style="margin: 0; padding: 15px 2px 15px 2px; cursor: pointer;">Nouvelle demande</span>
+            <li class="nav-item" id="draw-button">
+              <span class="nav-link" style="margin: 0; padding: 15px 2px 15px 2px; cursor: pointer;">Dessiner la zone <br><small>(zone à demander)</small></span>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Demande en attente <span class="float-right text-sm text-warning">(0)</span></a>
@@ -103,7 +103,7 @@
               Demande
               <div>
                 <button type="button" class="btn" onclick="collapseFormDemande('formDemande')"><i id="collapse" class="fas fa-minus"></i></button>
-                <button type="button" class="btn" onclick="fermerFormDemande()"><i class="fas fa-times"></i></button>
+                <button type="button" class="btn" onclick="fermerFormDemande()" id="closeForm"><i class="fas fa-times"></i></button>
               </div>
             </div>
             <form class="form-group" id="formDemande" method="POST" action="functions.php">
@@ -127,23 +127,27 @@
                 <label for="observation">Observation :</label>
                 <input type="text" class="form-control" name="observation" id="observation" required>
               </div>
+              <!--
+              On n'a pas besoin de ce champ si on commence par tracer le polygone pour faire une demande
               <div class="form-group">
                 <label for="geom">Géométrie :</label>
                 <button type="button" id="areaButton" class="btn btn-default">Tracer</button>
                 <input type="text" class="form-control" id="geom" name="geom" required readonly>
               </div>
+              -->
               <div class="form-group">
                 <label for="surface">Surface (m²) :</label>
                 <input type="decimal" class="form-control" name="surface" id="surface" required>
               </div>
               
-              <button type="submit" name="demandeRun" class="btn btn-success">Submit</button>
+              <button type="submit" name="demandeRun" class="btn btn-success">Envoyer demande</button>
+              <button type="button" id="cancelForm-btn" onclick="fermerFormDemande()" class="btn btn-danger" >Annuler</button>
             </form>
           </div>
           <!-- ./formulaire de demande -->
           <div id="confirmDiv" style="position: absolute; display: none;">
-            <button type="button" id="validateButton" class="btn btn-success" style="display: none;">Valider</button>
-            <button type="button" id="redrawButton" class="btn btn-danger" style="display: none;">Redessiner</button>
+            <button type="button" id="validateButton" class="btn btn-success" style="display: none;">Confirmer</button>
+            <button type="button" id="redrawButton" class="btn btn-danger" style="display: none;">Annuler</button>
           </div>
           <!-- carte -->
           <div id="map" class="map"></div>
@@ -169,10 +173,10 @@
 
   // afficher le formulaire de demande
   function afficherFormDemande(argument) {
-    document.getElementById("formDivDemande").style.display="block"
+    document.getElementById("formDivDemande").style.display="block";
   } 
   function fermerFormDemande(argument) {
-    document.getElementById("formDivDemande").style.display="none"
+    document.getElementById("formDivDemande").style.display="none";    
   }
   function collapseFormDemande(form) {
     var collapse = document.getElementById("collapse");

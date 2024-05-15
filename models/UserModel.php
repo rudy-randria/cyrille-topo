@@ -14,6 +14,7 @@ class UserModel {
                 public.user_lp u
             JOIN 
                 entity e ON u.id_entity = e.id_entity   -- structure de database à modifier, remplacer id_entite à id_entity dans la table user_lp
+                -- executer la commande 'ALTER TABLE user_lp RENAME COLUMN id_entite TO id_entity;'
             WHERE
                 login =:login AND  mot_de_passe = :mdp
         ");

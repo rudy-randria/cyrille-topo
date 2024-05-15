@@ -77,7 +77,7 @@ map.addControl(FullscreenControl);
 // #####fond de carte
 // couche limite administratice de commune Urbaine Antsirabe
 var limCommuneSource = new ol.source.TileWMS({
-  url: 'http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms',
+  url: 'http://localhost:8080/geoserver/M.Cyrille/wms',
   params: {
     'FORMAT': "image/png",
     'VERSION': '1.1.1',
@@ -99,7 +99,7 @@ var limiteCommuneLayer = new ol.layer.Tile({
 
 // couche PUDI de commune Urbaine Antsirabe
 var pudisource = new ol.source.TileWMS({
-  url: "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms",
+  url: "http://localhost:8080/geoserver/M.Cyrille/wms",
   params: {
     'LAYERS': 'M.Cyrille:pudi',
     'VERSION': '1.1.1',
@@ -123,7 +123,7 @@ var pudilayer = new ol.layer.Tile({
 map.addLayer(pudilayer);
 
 var plofsource = new ol.source.TileWMS({
-  url: "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms",
+  url: "http://localhost:8080/geoserver/M.Cyrille/wms",
   params: {
     'LAYERS': 'M.Cyrille:vw_plof',
     'STYLES': 'M.Cyrille:vw_plof',
@@ -147,7 +147,7 @@ map.addLayer(ploflayer);
 
 // couche Hydrographie linéaire
 var HydroligneSource = new ol.source.TileWMS({
-  url: "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms",
+  url: "http://localhost:8080/geoserver/M.Cyrille/wms",
   params: {
     'FORMAT': "image/png",
     'VERSION': '1.1.1',
@@ -161,11 +161,11 @@ var Hydrolignelayer = new ol.layer.Tile({
   source: HydroligneSource,
   visible: true
 }); 
-  // map.addLayer(Hydrolignelayer);
+  map.addLayer(Hydrolignelayer);
 
 // couche Hydrographie linéaire
 var HydrozoneSource = new ol.source.TileWMS({
-  url: "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms",
+  url: "http://localhost:8080/geoserver/M.Cyrille/wms",
   params: {
     'FORMAT': "image/png",
     'VERSION': '1.1.1',
@@ -178,161 +178,86 @@ var HydrozoneSource = new ol.source.TileWMS({
 var Hydrozonelayer = new ol.layer.Tile({
   source: HydroligneSource,
   visible: true
-}); 
-  // map.addLayer(Hydrozonelayer);
+}); map.addLayer(Hydrozonelayer);
 
+// var sourceWFS = new ol.source.Vector({
+//     format: new ol.format.GeoJSON(),
+//     url: function(extent) {
+//         return 'http://geoserver.gendarmerie.mg:8080/geoserver/wfs?service=WFS&' +
+//                'version=1.1.0&request=GetFeature&typename=M.Cyrille:limite_commune&' +
+//                'outputFormat=application/json&srsname='+projection+'&' +
+//                'bbox=' + extent.join(',') + ','+projection+'';
+//     },
+//     strategy: ol.loadingstrategy.bbox
+// });
 
-var certificatSource = new ol.source.TileWMS({
-  url: "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms",
-  params: {
-    'LAYERS': 'M.Cyrille:certificats',
-    // 'STYLES': 'M.Cyrille:vw_plof',
-    'VERSION': '1.1.1',
-    'FORMAT': 'image/png',
-    // 'FORMAT_OPTIONS': "layout:style-editor-legend;fontAntiAliasing:true",
-    'RANDOM': 48810829,
-    'LEGEND_OPTIONS': 'forceLabels:on;fontAntiAliasing:true',
-    'EXCEPTIONS': 'application/vnd.ogc.se_inimage'
-  },
-  projection: projection,
-  serverType: 'geoserver',
-  ratio: 1
-});
+// var layerWFS = new ol.layer.Vector({
+//     source: sourceWFS
+// });
+// map.addLayer(layerWFS);
 
-var certificatLayer = new ol.layer.Tile({
-  source: certificatSource,
-  visible: true
-});
-map.addLayer(certificatLayer);
-
-// features in this layer will be snapped to
-const baseVector = new ol.layer.Vector({
-  source: new ol.source.Vector({
-    format: new ol.format.GeoJSON(),
-    url: '../assets/js/data.json',
-  }),
-  style: {
-    'fill-color': 'red',
-    'stroke-color': 'rgba(255, 0, 0, 0.9)',
-    'stroke-width': 0.5,
-  },
-});
-
-// this is where the drawn features go
-const drawVector = new ol.layer.Vector({
-  source: new ol.source.Vector(),
-  style: {
-    'stroke-color': 'rgba(100, 255, 0, 1)',
-    'stroke-width': 2,
-    'fill-color': 'rgba(100, 255, 0, 0.3)',
-  },
-});
-
-map.addLayer(baseVector);
-map.addLayer(drawVector);
-
-
-let drawInteraction;
-
-const snapInteraction = new ol.interaction.Snap({
-  source: baseVector.getSource(),
-});
-
-
-function addInteraction(type) {
-  drawVector.getSource().clear();
-    drawInteraction = new ol.interaction.Draw({
-      type: type,
-      source: drawVector.getSource(),
-      trace: true,
-      traceSource: baseVector.getSource(),
-      style: {
-        'stroke-color': 'rgba(255, 255, 100, 0.5)',
-        'stroke-width': 1.5,
-        'fill-color': 'rgba(255, 255, 100, 0.25)',
-        'circle-radius': 6,
-        'circle-fill-color': 'rgba(255, 255, 100, 0.5)',
-      },
-    });
-    map.addInteraction(drawInteraction);
-    map.addInteraction(snapInteraction);
-  
-  var validateButton = document.getElementById('validateButton');
-  var redrawButton = document.getElementById('redrawButton');
-  var confirmDiv = document.getElementById("confirmDiv");
-
-  var confirmOverlay = new ol.Overlay({
-    element: confirmDiv,
-    anchor: [10, 10],
-    autoPan: true,
-    autoPanAnimation: {
-      duration: 250,
-    },
-  });
-  map.addOverlay(confirmOverlay);
-
-  drawInteraction.on('drawend', function(evt) {
-    map.removeInteraction(drawInteraction);
-    map.removeInteraction(snapInteraction);
-    validateButton.style.display = 'block';
-    redrawButton.style.display = 'block';
-    confirmDiv.style.display = 'block';
-    var position = evt.feature.getGeometry().getLastCoordinate();
-    confirmOverlay.setPosition(position);
-
-    validateButton.addEventListener('click', function() {
-      var feature = evt.feature;
-      var wktWriter = new ol.format.WKT();
-      var geometry = feature.getGeometry();
-      var wkt = wktWriter.writeGeometry(geometry);
-      var area = geometry.getArea();
       
-
-      map.removeInteraction(drawInteraction);
-      map.removeInteraction(snapInteraction);
-      // var geomvalue = "Polygon(("+ geometry.getCoordinates() +"))"
-      var geomvalue = wkt;
-
-      document.getElementById('geom').value = geomvalue;
-      document.getElementById('surface').value = area.toFixed(2);
-      document.getElementById("areaButton").innerHTML = 'Retracer';
-      validateButton.style.display = 'none';
-      redrawButton.style.display = 'none';
-      confirmDiv.style.display = 'none';
-
-    });
-
-    redrawButton.addEventListener('click', function(feature) {
-      drawVector.getSource().clear();
-
-      map.removeInteraction(drawInteraction);
-      addInteraction("Polygon");
-
-      validateButton.style.display = 'none';
-      redrawButton.style.display = 'none';
-      confirmDiv.style.display = 'none';
-    });
-  });
-}
-
-var element = document.getElementById('formDivDemande');
-var areaButton = document.getElementById('areaButton');
-var areaControl = new ol.control.Control({
-  element: element
+// Créer une couche vectorielle pour afficher les dessins de l'utilisateur
+var vectorLayer = new ol.layer.Vector({
+  source: new ol.source.Vector(),
+  style: new ol.style.Style({
+      fill: new ol.style.Fill({
+          color: 'rgba(255, 255, 255, 0.2)'
+      }),
+      stroke: new ol.style.Stroke({
+          color: '#ffcc33',
+          width: 2
+      }),
+      image: new ol.style.Circle({
+          radius: 7,
+          fill: new ol.style.Fill({
+              color: '#ffcc33'
+          })
+      })
+  })
 });
 
-areaButton.addEventListener("click", () => {
-  // désactiver les autres interactions
-  areaButton.classList.toggle("clicked");
-    addInteraction("Polygon");
+
+// Ajouter la couche vectorielle à la carte
+map.addLayer(vectorLayer);
+
+// Créer un outil de dessin pour permettre à l'utilisateur de dessiner sur la carte
+var draw = new ol.interaction.Draw({
+  source: vectorLayer.getSource(),
+  type: 'Polygon' // Permet de dessiner des polygones
 });
-map.addControl(areaControl);
+
+// Ajouter l'interaction de dessin à la carte lorsque l'utilisateur clique sur un bouton par exemple
+document.getElementById('draw-button').addEventListener('click', function() {
+  map.addInteraction(draw);
+});
+
+// Écouter l'événement de fin de dessin pour afficher le formulaire modal
+draw.on('drawend', function(event) {
+  var feature = event.feature;
+  var geometry = feature.getGeometry();
+  
+  // Afficher le formulaire modal
+  afficherFormDemande();
+  map.removeInteraction(draw);  
+});
 
 
+var cancelButton = document.getElementById('cancelForm-btn');
 
+// Ajouter un gestionnaire d'événements pour le clic sur le bouton "cancelForm-btn"
+cancelButton.addEventListener('click', function() {
+    // Supprimer tous les dessins de la couche vectorielle
+    vectorLayer.getSource().clear();
+});
 
+var closeButton = document.getElementById('closeForm');
 
-
+// Ajouter un gestionnaire d'événements pour le clic sur le bouton "closeForm"
+closeButton.addEventListener('click', function() {
+  // Supprimer tous les dessins de la couche vectorielle
+  vectorLayer.getSource().clear();
+});
 
 
                

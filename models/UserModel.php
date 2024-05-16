@@ -9,7 +9,7 @@ class UserModel {
         // Si les informations d'identification sont valides, retournez true, sinon retournez false
         
         global $db;
-        $stmt = $db->prepare("SELECT id_user, nom, prenom, tel, mail, poste, login, mot_de_passe, e.name
+        $stmt = $db->prepare("SELECT id_user,e.id_entity as id_entity, nom, prenom, tel, mail, poste, login, mot_de_passe, e.name
             FROM 
                 public.user_lp u
             JOIN 
@@ -29,6 +29,7 @@ class UserModel {
             session_start();
             $_SESSION['id'] = $user['id_user'];
             $_SESSION['mdp'] = $user['mot_de_passe'];
+            $_SESSION['id_entity'] = $user['id_entity'];
             $_SESSION['entite'] = $user['name'];
             return true;
         } else {

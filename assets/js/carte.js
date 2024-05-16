@@ -35,6 +35,7 @@ var map = new ol.Map({
   view: view
 });
 
+// centrer la carte sur la géométrie d'un élément cliqué
 var newview = map.getView();
 if (lat && lon) {
   newview.animate({
@@ -43,6 +44,33 @@ if (lat && lon) {
     zoom: 10,
   });
 }
+
+// ajouter un marqueur
+var point = (lat && lon) ? [parseFloat(lon), parseFloat(lat)] : [];
+
+// Ajoutez un marqueur sur le point
+var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(point, projection)));
+var markvectorSource = new ol.source.Vector({
+    features: [marker]
+});
+
+var markerStyle = new ol.style.Style({
+    image: new ol.style.Icon({
+      anchor: [0.5, 0.9],
+      scale: 0.3,
+      // size: [1, 1],
+      src: '../assets/images/carte/map.ico',
+    }),
+  });
+
+var markerVectorLayer = new ol.layer.Vector({
+    source: markvectorSource,
+    // style: flashStyle
+    style: markerStyle
+});
+
+map.addLayer(markerVectorLayer);
+markerVectorLayer.setZIndex(999);
 
 // ----- position de souris---------
 var mousePositionControl = new ol.control.MousePosition({
@@ -77,7 +105,7 @@ map.addControl(FullscreenControl);
 // #####fond de carte
 // couche limite administratice de commune Urbaine Antsirabe
 var limCommuneSource = new ol.source.TileWMS({
-  url: 'http://localhost:8080/geoserver/M.Cyrille/wms',
+  url: 'http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms',
   params: {
     'FORMAT': "image/png",
     'VERSION': '1.1.1',
@@ -99,7 +127,7 @@ var limiteCommuneLayer = new ol.layer.Tile({
 
 // couche PUDI de commune Urbaine Antsirabe
 var pudisource = new ol.source.TileWMS({
-  url: "http://localhost:8080/geoserver/M.Cyrille/wms",
+  url: "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms",
   params: {
     'LAYERS': 'M.Cyrille:pudi',
     'VERSION': '1.1.1',
@@ -123,7 +151,7 @@ var pudilayer = new ol.layer.Tile({
 map.addLayer(pudilayer);
 
 var plofsource = new ol.source.TileWMS({
-  url: "http://localhost:8080/geoserver/M.Cyrille/wms",
+  url: "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms",
   params: {
     'LAYERS': 'M.Cyrille:vw_plof',
     'STYLES': 'M.Cyrille:vw_plof',
@@ -147,7 +175,7 @@ map.addLayer(ploflayer);
 
 // couche Hydrographie linéaire
 var HydroligneSource = new ol.source.TileWMS({
-  url: "http://localhost:8080/geoserver/M.Cyrille/wms",
+  url: "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms",
   params: {
     'FORMAT': "image/png",
     'VERSION': '1.1.1',
@@ -165,7 +193,7 @@ var Hydrolignelayer = new ol.layer.Tile({
 
 // couche Hydrographie linéaire
 var HydrozoneSource = new ol.source.TileWMS({
-  url: "http://localhost:8080/geoserver/M.Cyrille/wms",
+  url: "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms",
   params: {
     'FORMAT': "image/png",
     'VERSION': '1.1.1',
@@ -179,6 +207,31 @@ var Hydrozonelayer = new ol.layer.Tile({
   source: HydroligneSource,
   visible: true
 }); map.addLayer(Hydrozonelayer);
+
+// couche certificats
+
+var certificatSource = new ol.source.TileWMS({
+  url: "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/wms",
+  params: {
+    'LAYERS': 'M.Cyrille:certificats',
+    // 'STYLES': 'M.Cyrille:vw_plof',
+    'VERSION': '1.1.1',
+    'FORMAT': 'image/png',
+    // 'FORMAT_OPTIONS': "layout:style-editor-legend;fontAntiAliasing:true",
+    'RANDOM': 48810829,
+    'LEGEND_OPTIONS': 'forceLabels:on;fontAntiAliasing:true',
+    'EXCEPTIONS': 'application/vnd.ogc.se_inimage'
+  },
+  projection: projection,
+  serverType: 'geoserver',
+  ratio: 1
+});
+
+var certificatLayer = new ol.layer.Tile({
+  source: certificatSource,
+  visible: true
+});
+map.addLayer(certificatLayer);
 
 // var sourceWFS = new ol.source.Vector({
 //     format: new ol.format.GeoJSON(),
@@ -217,7 +270,6 @@ var vectorLayer = new ol.layer.Vector({
   })
 });
 
-
 // Ajouter la couche vectorielle à la carte
 map.addLayer(vectorLayer);
 
@@ -229,6 +281,7 @@ var draw = new ol.interaction.Draw({
 
 // Ajouter l'interaction de dessin à la carte lorsque l'utilisateur clique sur un bouton par exemple
 document.getElementById('draw-button').addEventListener('click', function() {
+  vectorLayer.getSource().clear();
   map.addInteraction(draw);
 });
 
@@ -236,9 +289,16 @@ document.getElementById('draw-button').addEventListener('click', function() {
 draw.on('drawend', function(event) {
   var feature = event.feature;
   var geometry = feature.getGeometry();
+  var wktWriter = new ol.format.WKT(); // appeler la fonction de convertir les coordonnées du polygon dessuné en format compatible par postgis
+  var wkt = wktWriter.writeGeometry(geometry); //convertir le geometrie en format valide
+  var area = geometry.getArea(); //caluler la surface du polygon
   
   // Afficher le formulaire modal
   afficherFormDemande();
+  // remplir les champs surface et geom 
+  document.getElementById('surface').value = area.toFixed(2);
+  document.getElementById('geom').value = wkt;
+
   map.removeInteraction(draw);  
 });
 
@@ -260,4 +320,84 @@ closeButton.addEventListener('click', function() {
 });
 
 
-               
+// Afficher la couche en attente en jaune
+var url = "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=validee_publiee+=+%27false%27&outputFormat=application/json"; 
+
+var AttentestyleFunction = function(feature) {
+  return new ol.style.Style({
+    fill: new ol.style.Fill({
+      color: 'transparent'
+    }),
+    stroke: new ol.style.Stroke({
+      color: 'yellow',
+      width: 3
+    }),
+    image: new ol.style.Circle({
+      radius: 7,
+      fill: new ol.style.Fill({
+        color: 'yellow'
+      })
+    }),
+    text: new ol.style.Text({
+      text: feature.get('numdemande'),
+      fill: new ol.style.Fill({
+        color: '#000'
+      }),
+      stroke: new ol.style.Stroke({
+        color: '#fff',
+        width: 3
+      })
+    })
+  });
+};
+
+var CertificatsAttentegeojson = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    url: url,
+    format: new ol.format.GeoJSON()
+  }),
+  style: AttentestyleFunction // Utilisez la fonction de style ici
+});
+
+map.addLayer(CertificatsAttentegeojson);
+
+// Afficher la couche en attente en jaune
+var url = "http://srv.gendarmerie.mg:8080/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=validee_publiee+=+%27true%27&outputFormat=application/json"; 
+
+var ValideeStyleFunction = function(feature) {
+  return new ol.style.Style({
+    fill: new ol.style.Fill({
+      color: 'transparent'
+    }),
+    stroke: new ol.style.Stroke({
+      color: 'green',
+      width: 3
+    }),
+    image: new ol.style.Circle({
+      radius: 7,
+      fill: new ol.style.Fill({
+        color: 'green'
+      })
+    }),
+    text: new ol.style.Text({
+      text: feature.get('numdemande'),
+      fill: new ol.style.Fill({
+        color: '#000'
+      }),
+      stroke: new ol.style.Stroke({
+        color: '#fff',
+        width: 3
+      })
+    })
+  });
+};
+
+var CertificatsValideegeojson = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    url: url,
+    format: new ol.format.GeoJSON()
+  }),
+  style: ValideeStyleFunction // Utilisez la fonction de style ici
+});
+
+map.addLayer(CertificatsValideegeojson);

@@ -12,8 +12,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['demandeRun'])) {
 function certificatsDemande () {
 	global $db;
 	$demande = $db->prepare("INSERT INTO public.certificats(
-	numcf, geom, numdemande, surface, observation, id_user)
-	VALUES (:numcf, ST_Multi(ST_GeomFromText(:geom, 29702)), :numdemande, :surface, :observation, :id_user)");
+	numcf, geom, numdemande, surface, observation, id_user, validee_publiee)
+	VALUES (:numcf, ST_Multi(ST_GeomFromText(:geom, 29702)), :numdemande, :surface, :observation, :id_user, false)");
 	$demande->execute([
 		'numcf' => $_POST['numcf'],
 		'geom' => $_POST['geom'],

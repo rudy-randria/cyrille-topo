@@ -4,6 +4,8 @@
 
 2. **Dossiers Principaux** :
    - `assets/` : Pour les ressources statiques comme les images, les fichiers CSS et JS.
+            /js/carte.js : scripts pour fonctionner la carte dynamique, pour afficher des couches et images sur l'interfaces web,
+            /css/carte.css : style pour la mise en forme de la carte 
    - `includes/` : Pour les fichiers PHP inclus dans plusieurs pages.
    - `templates/` : Pour les fichiers de modèle réutilisables.  
 

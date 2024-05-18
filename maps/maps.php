@@ -56,7 +56,7 @@
       color: #000;
     } 
 
-    #formDivDemande {
+    #formDivDemande, #formDivRect {
       display: none;
       position: absolute;
       z-index: 99999;
@@ -106,14 +106,7 @@
                 <span class="badge badge-warning  navbar-badge" style="background-color: yellow; color: black;" id="Attentenombre">0</span>        
               </a>
               <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="demandeAttentNot">
-                <span class="dropdown-item dropdown-header" id="DemandeAttenteTitleNot">0 demande en attente</span>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-envelope mr-2"></i> 4 new messages
-                  <span class="float-right text-muted text-sm">3 mins</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>        
+                <span class="dropdown-item dropdown-header" id="DemandeAttenteTitleNot">0 demande en attente</span>   
               </div>
             </li>
             
@@ -124,65 +117,30 @@
                 <span class="badge badge-warning  navbar-badge" style="background-color: green; color: black;" id="Valideenombre">0</span>
               </a>
               <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="demandeValideeNot">
-                <span class="dropdown-item dropdown-header" id="DemandeVlideeTitleNot">0 demande validée</span>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-envelope mr-2"></i> 4 new messages
-                  <span class="float-right text-muted text-sm">3 mins</span>          </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-users mr-2"></i> 8 friend requests
-                  <span class="float-right text-muted text-sm">12 hours</span>          </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-file mr-2"></i> 3 new reports
-                  <span class="float-right text-muted text-sm">2 days</span>          </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>        </div>
+                <span class="dropdown-item dropdown-header">0 demande validée</span>     
+              </div>
             </li>
+
+            <!-- notifications des demandes à rectifier -->
             <li class="nav-item dropdown">
               <a class="nav-link" data-toggle="dropdown" href="#">
                 Demande à rectifier
-                <span class="badge badge-warning  navbar-badge" style="background-color: blue; color: black;" id="Attentenombre">0</span>        
+                <span class="badge badge-warning  navbar-badge" style="background-color: blue; color: black;" id="rectifierNombre">0</span>
               </a>
-              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                <span class="dropdown-item dropdown-header" id="DemandeTitleNot">0 demande à rectifier</span>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-envelope mr-2"></i> 4 new messages
-                  <span class="float-right text-muted text-sm">3 mins</span>          </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-users mr-2"></i> 8 friend requests
-                  <span class="float-right text-muted text-sm">12 hours</span>          </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-file mr-2"></i> 3 new reports
-                  <span class="float-right text-muted text-sm">2 days</span>          </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>        </div>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="demandeArecitfierNot">
+                <span class="dropdown-item dropdown-header" id="DemandeVlideeTitleNot">0 demande à rectifier</span>     
+              </div>
             </li>
+
+            <!-- notifications des demandes refusées -->
             <li class="nav-item dropdown">
               <a class="nav-link" data-toggle="dropdown" href="#">
-                Demande validée
-                <span class="badge badge-warning  navbar-badge" style="background-color: red; color: black;" id="Attentenombre">0</span>        
+                Demande refusée
+                <span class="badge badge-warning  navbar-badge" style="background-color: red; color: black;" id="refuseeNombre">0</span>
               </a>
-              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                <span class="dropdown-item dropdown-header" id="DemandeTitleNot">0 demande refusée</span>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-envelope mr-2"></i> 4 new messages
-                  <span class="float-right text-muted text-sm">3 mins</span>          </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-users mr-2"></i> 8 friend requests
-                  <span class="float-right text-muted text-sm">12 hours</span>          </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-file mr-2"></i> 3 new reports
-                  <span class="float-right text-muted text-sm">2 days</span>          </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>        </div>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="demandeRefuseeNot">
+                <span class="dropdown-item dropdown-header" id="DemandeVlideeTitleNot">0 demande refusée</span>     
+              </div>
             </li>
             <li>
               <button type="button" title="Déconnecter la page" class="btn btn-danger navbar-btn" onclick="deconnecter()"> <i style="color: ;" class="nav-icon fas fa-sign-out-alt" ></i></button>
@@ -196,7 +154,7 @@
       </div>
     </nav>
     
-    <!-- Navbar -->
+    <!-- ./Navbar -->
     <div class="content-wrapper">
       <section>
         <!-- formlaire de demande -->
@@ -204,10 +162,11 @@
           <div id="formDivDemande">
             <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
             <div id="formDivHeader" class="div-header d-flex justify-content-between align-items-center">
-              Demande
+              <h3 id="formTitle">Demande</h3>
+              
               <div>
                 <button type="button" class="btn" onclick="collapseFormDemande('formDemande')"><i id="collapse" class="fas fa-minus"></i></button>
-                <button type="button" class="btn" onclick="fermerFormDemande()" id="closeForm"><i class="fas fa-times"></i></button>
+                <button type="button" class="btn" onclick="fermerFormDemande('formDivDemande')" id="closeForm"><i class="fas fa-times"></i></button>
               </div>
             </div>
             <form class="form-group" id="formDemande" method="POST" action="functions.php">
@@ -232,7 +191,7 @@
               
               <!-- On n'a pas besoin de ce champ si on commence par tracer le polygone pour faire une demande -->
               <div class="form-group">
-                <input type="text" class="form-control" id="geom" name="geom" required readonly>
+                <input type="hidden" class="form-control" id="geom" name="geom" required readonly>
               </div>
               
               <div class="form-group">
@@ -241,10 +200,55 @@
               </div>
               
               <button type="submit" name="demandeRun" class="btn btn-success">Envoyer demande</button>
-              <button type="button" id="cancelForm-btn" onclick="fermerFormDemande()" class="btn btn-danger" >Annuler</button>
+              <button type="button" id="cancelForm-btn" onclick="fermerFormDemande('formDivDemande')" class="btn btn-danger" >Annuler</button>
             </form>
           </div>
           <!-- ./formulaire de demande -->
+          <!-- formlaire de rectification -->
+          <!-- Draggable DIV -->
+          <div id="formDivRect">
+            <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
+            <div id="formDivHeader" class="div-header d-flex justify-content-between align-items-center">
+              <h3 id="formTitle">Rectification</h3>
+              
+              <div>
+                <button type="button" class="btn" onclick="collapseFormDemande('formDivRect')"><i id="collapse" class="fas fa-minus"></i></button>
+                <button type="button" class="btn" onclick="fermerFormDemande('formDivRect')" id="closeForm"><i class="fas fa-times"></i></button>
+              </div>
+            </div>
+            <form class="form-group" id="formDemande" method="POST" action="functions.php">
+              <div class="form-group">
+                <label for="numcf" id="numerolabel"> Remarque du comité : </label>
+                <textarea class="form-control" id="remarque" readonly></textarea>
+              </div>              
+              <div class="form-group">
+                <label for="numcf" id="numerolabel"> Numero : </label>
+                <input type="text" class="form-control" name="numcf" id="numcf2" required>
+              </div>
+              <div class="form-group">
+                <label for="numdemande">Numero demande :</label>
+                <input type="text" name="numdemande" class="form-control" id="numdemande2" required>
+              </div>
+              <div class="form-group">
+                <label for="observation">Observation :</label>
+                <input type="text" class="form-control" name="observation" id="observation2" required>
+              </div>
+              
+              <!-- On n'a pas besoin de ce champ si on commence par tracer le polygone pour faire une demande -->
+              <div class="form-group">
+                <input type="hidden" class="form-control" id="geom2" name="geom" required readonly>
+              </div>
+              
+              <div class="form-group">
+                <label for="surface">Surface (m²) :</label>
+                <input type="decimal" class="form-control" name="surface" id="surface2" required>
+              </div>
+              
+              <button type="submit" name="demandeRun" class="btn btn-success">Envoyer demande</button>
+              <button type="button" id="cancelForm-btn" onclick="fermerFormDemande('formDivRect')" class="btn btn-danger" >Annuler</button>
+            </form>
+          </div>
+          <!-- ./formulaire de rectification -->
           <div id="confirmDiv" style="position: absolute; display: none;">
             <button type="button" id="validateButton" class="btn btn-success" style="display: none;">Confirmer</button>
             <button type="button" id="redrawButton" class="btn btn-danger" style="display: none;">Annuler</button>
@@ -263,8 +267,22 @@
   </div>
 <script src="../vendor/proj4/proj4.js"></script>
 <script src="../vendor/ol/dist/ol.js"></script>
-<script type="module" src="../assets/js/carte.js"></script>
-<script type="text/javascript" src="../assets/js/main.js"></script>
+
+<?php //Controler ici l'affichage de carte selon l'entite connectée
+
+if ($_SESSION['id_entity'] == 2) {
+  echo '<script type="module" src="../assets/js/autres.js"></script>';
+} elseif ($_SESSION['id_entity'] == 3) {
+  echo '<script type="module" src="../assets/js/servicefoncier.js"></script>';
+} elseif ($_SESSION['id_entity'] == 4) {
+  echo '<script type="module" src="../assets/js/commune.js"></script>';
+} elseif ($_SESSION['id_entity'] == 5) {
+  echo '<script type="module" src="../assets/js/ammenagement.js"></script>';
+} else {
+  echo "Erreur";
+}
+
+ ?>
 <script type="text/javascript">
 	function deconnecter() {
 	    var confirmer = confirm("Voulez-vous vraiment quitter la plateforme ?");
@@ -276,8 +294,8 @@
   function afficherFormDemande(argument) {
     document.getElementById("formDivDemande").style.display="block";
   } 
-  function fermerFormDemande(argument) {
-    document.getElementById("formDivDemande").style.display="none";    
+  function fermerFormDemande(form) {
+    document.getElementById(form).style.display="none";    
   }
   function collapseFormDemande(form) {
     var collapse = document.getElementById("collapse");

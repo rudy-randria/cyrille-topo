@@ -15,7 +15,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 
     // Si les informations d'identification sont valides, rediriger vers la page d'accueil
     if ($isValidUser) {
-        header("Location: ../maps/maps.php");
+        if ($_SESSION['id_entity'] == 6) { //si l'utilisateur connecté est la comité de validation 
+            header("Location: ../maps/comite.php");
+        } elseif ($_SESSION['id_entity'] == 1) {  //si l'utilisateur connecté est la .
+            header("Location: ../maps/admin.php");
+        } else { //si l'utilisateur connecté est un parmis les autres entités
+            header("Location: ../maps/maps.php");
+        }
         exit();
     } else {
         // Sinon, rediriger vers la page de connexion avec un message d'erreur

@@ -1,0 +1,10 @@
+{
+    "name": "cyrille/topo",
+    "description": "signalisation web",
+    "type": "project",
+    "license": "MIT license",
+    "minimum-stability": "dev",
+    "require-dev": {
+        "phpunit/phpunit": "9.6.x-dev"
+    }
+}

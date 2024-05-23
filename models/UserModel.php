@@ -1,6 +1,7 @@
 <?php
 // models/UserModel.php
-require_once('../config.php');
+require_once __DIR__ . '/../config.php';
+
 class UserModel {
     // Méthode pour vérifier les informations d'identification de l'utilisateur
     public function verifyCredentials($username, $password) {

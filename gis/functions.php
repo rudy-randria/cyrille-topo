@@ -1,5 +1,6 @@
 <?php 
-require_once('../config.php');
+require_once __DIR__ . '/../config.php';
+
 
 $couche = $_GET['couche'] ?? '';
 $status = $_GET['status'] ?? '';

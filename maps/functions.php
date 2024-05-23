@@ -1,6 +1,9 @@
 <?php
-require_once('../config.php');
-session_start();
+require_once __DIR__ . '/../config.php';
+
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+	session_start();
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['demandeRun'])) {
 	if ($_POST['type'] === 'cf') {
@@ -21,8 +24,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['CheckRun'])) {
 		echo "Erreur";
 	}
 }
-
+/*
 function certificatsDemande () {
+	
 	global $db;
 	$demande = $db->prepare("INSERT INTO public.certificats(
 	numcf, geom, numdemande, surface, observation, id_user, updated_or_new)
@@ -36,6 +40,30 @@ function certificatsDemande () {
 		'id_user' => $_SESSION['id_user']
 	]);
 	echo "Demande envoyée";
+}
+*/
+
+function certificatsDemande($db = null) {
+    if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+        session_start();
+    }
+
+    if ($db === null) {
+        global $db;
+    }
+
+    $demande = $db->prepare("INSERT INTO public.certificats(
+    numcf, geom, numdemande, surface, observation, id_utilisateur, updated_or_new)
+    VALUES (:numcf, ST_Multi(ST_GeomFromText(:geom, 29702)), :numdemande, :surface, :observation, :id_user, true)");
+    $demande->execute([
+        'numcf' => $_POST['numcf'],
+        'geom' => $_POST['geom'],
+        'numdemande' => $_POST['numdemande'],
+        'surface' => $_POST['surface'],
+        'observation' => $_POST['observation'],
+        'id_user' => $_SESSION['id_user']
+    ]);
+    echo "Demande envoyée";
 }
 
 function permisDemande () {

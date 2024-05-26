@@ -6,3 +6,4 @@ return [
     'db_user' => 'rudy',
     'db_pass' => 'rudy123',
 ];
+?>

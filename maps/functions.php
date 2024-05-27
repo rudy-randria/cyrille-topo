@@ -1,4 +1,5 @@
 <?php
+// maps/functions.php
 require_once __DIR__ . '/../config.php';
 
 if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
@@ -63,27 +64,45 @@ function certificatsDemande($db = null) {
         'observation' => $_POST['observation'],
         'id_user' => $_SESSION['id_user']
     ]);
+    
     echo "Demande envoyée";
 }
 
-function permisDemande () {
-	global $db;
-	$demande = $db->prepare("INSERT INTO public.certificats(
-	numcf, geom, numdemande, surface, observation, id_user, updated_or_new)
-	VALUES (:numcf, ST_Multi(ST_GeomFromText(:geom, 29702)), :numdemande, :surface, :observation, :id_user, false)");
-	$demande->execute([
-		'numcf' => $_POST['numcf'],
-		'geom' => $_POST['geom'],
-		'numdemande' => $_POST['numdemande'],
-		'surface' => $_POST['surface'],
-		'observation' => $_POST['observation'],
-		'id_user' => $_SESSION['id_user']
-	]);
-	echo "Demande envoyée";
+function permisDemande($db = null) {
+    if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+        session_start();
+    }
+
+    if ($db === null) {
+        global $db;
+    }
+    
+    $demande = $db->prepare("INSERT INTO public.certificats(
+        numcf, geom, numdemande, surface, observation, id_utilisateur, updated_or_new)
+        VALUES (:numcf, ST_Multi(ST_GeomFromText(:geom, 29702)), :numdemande, :surface, :observation, :id_user, false)");
+    $demande->execute([
+        'numcf' => $_POST['numcf'],
+        'geom' => $_POST['geom'],
+        'numdemande' => $_POST['numdemande'],
+        'surface' => $_POST['surface'],
+        'observation' => $_POST['observation'],
+        'id_user' => $_SESSION['id_user']
+    ]);
+    
+    echo "Demande envoyée";
 }
 
-function DemandArectifier ($gid) {
-	global $db;
+
+
+function DemandArectifier ($gid, $db = null) {
+	if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+        session_start();
+    }
+
+    if ($db === null) {
+        global $db;
+    }
+	
 	$update = $db -> prepare("UPDATE public.certificats
 	SET observation=:observation, a_rectifier=true, updated_or_new = NULL
 	WHERE gid = :gid");
@@ -91,8 +110,14 @@ function DemandArectifier ($gid) {
 	echo "Remarques envoyées";
 }
 
-function DemandValider ($gid) {
-	global $db;
+function DemandValider ($gid, $db = null) {
+	if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+        session_start();
+    }
+
+    if ($db === null) {
+        global $db;
+    }
 	$update = $db -> prepare("UPDATE public.certificats
 	SET observation=:observation, validee_publiee = true, a_rectifier= NULL, updated_or_new = NULL
 	WHERE gid = :gid");
@@ -100,8 +125,14 @@ function DemandValider ($gid) {
 	echo "Remarques envoyées";
 }
 
-function DemandRefuser ($gid) {
-	global $db;
+function DemandRefuser ($gid, $db = null) {
+	if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+        session_start();
+    }
+
+    if ($db === null) {
+        global $db;
+    }
 	$update = $db -> prepare("UPDATE public.certificats
 	SET observation=:observation, validee_publiee = false, a_rectifier= NULL, updated_or_new = NULL
 	WHERE gid = :gid");

@@ -1,13 +1,13 @@
 <?php 
-	session_start();
+  session_start();
 
-	if (!$_SESSION['mdp']) {
-		session_destroy();
-		header('location:../index.php');
-	}
+  if (!$_SESSION['mdp']) {
+    session_destroy();
+    header('location:../index.php');
+  }
 
-	// Inclure les ressources communes
-	include_once('../includes/resources.php');
+  // Inclure les ressources communes
+  include_once('../includes/resources.php');
 
   // Controle des couches accessible par rapport à l'entite connecté
   $select = "";
@@ -26,7 +26,7 @@
                <option value='plof'>Plan Local d'Occupation Foncière</option>";
   } elseif ($entite === 4) { // communes : 
     $select = "<option value=''>Choisir ici</option>
-               <option value='cf'>Certificat foncier</option>
+               <option value='certificats'>Certificat foncier</option>
                <option value='permis'>Permis de construire</option>";
   } elseif ($entite === 5) { // amenagement SRAT : pude
     $select = "<option value=''>Choisir ici</option>
@@ -43,20 +43,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-	<title>Cartographie </title>
-	<link rel="stylesheet" href="../vendor/ol/ol.css"></link>
-	<link rel="stylesheet" type="text/css" href="../assets/css/carte.css">
+  <title>Cartographie </title>
+  <link rel="stylesheet" href="../vendor/ol/ol.css"></link>
+  <link rel="stylesheet" type="text/css" href="../assets/css/carte.css">
   <style type="text/css">
     .navbar-light .navbar-nav .nav-link {
       color: #000;
     } 
 
-    #formDivDemande, #formDivRect {
+    #formDivDemande, #formDivRect, #formDivRefus {
       display: none;
       position: absolute;
       z-index: 99999;
@@ -68,8 +68,8 @@
       width: 250px;
     }
 
-    #formDemande {
-      padding: 5PX;
+    #formDemande, #formrectification {
+      padding: 5px;
     }
 
     #formDemande input, select {
@@ -81,7 +81,13 @@
       z-index: 10;
       background-color: #2196F3;
       color: #fff;
-    }           
+    }    
+
+    #startEditing, #stopEditing {
+      padding: 2px;
+      border: 1px solid black;
+      border-radius: 3px;
+    }       
   </style>
 </head>
 <body>
@@ -158,7 +164,6 @@
     <div class="content-wrapper">
       <section>
         <!-- formlaire de demande -->
-          <!-- Draggable DIV -->
           <div id="formDivDemande">
             <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
             <div id="formDivHeader" class="div-header d-flex justify-content-between align-items-center">
@@ -172,7 +177,7 @@
             <form class="form-group" id="formDemande" method="POST" action="functions.php">
               <div class="form-group">
                 <label for="ref">Type :</label>
-                <select name="type" class="form-control" id="ref" required onchange="setLabelNum()">
+                <select name="couche" class="form-control" id="ref" required onchange="setLabelNum()">
                   <?= $select; ?>
                 </select>
               </div>
@@ -189,7 +194,7 @@
                 <input type="text" class="form-control" name="observation" id="observation" required>
               </div>
               
-              <!-- On n'a pas besoin de ce champ si on commence par tracer le polygone pour faire une demande -->
+               <!-- Mettre dans le formulaire le valeur de geométrie mais masquée-->
               <div class="form-group">
                 <input type="hidden" class="form-control" id="geom" name="geom" required readonly>
               </div>
@@ -204,19 +209,21 @@
             </form>
           </div>
           <!-- ./formulaire de demande -->
+
           <!-- formlaire de rectification -->
-          <!-- Draggable DIV -->
           <div id="formDivRect">
-            <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
             <div id="formDivHeader" class="div-header d-flex justify-content-between align-items-center">
               <h3 id="formTitle">Rectification</h3>
-              
               <div>
-                <button type="button" class="btn" onclick="collapseFormDemande('formDivRect')"><i id="collapse" class="fas fa-minus"></i></button>
+                <button type="button" class="btn" onclick="collapseFormDemande('formrectification')"><i id="collapse" class="fas fa-minus"></i></button>
                 <button type="button" class="btn" onclick="fermerFormDemande('formDivRect')" id="closeForm"><i class="fas fa-times"></i></button>
               </div>
             </div>
-            <form class="form-group" id="formDemande" method="POST" action="functions.php">
+            <form class="form-group" id="formrectification" method="POST" action="functions.php">
+              <div class="form-group">
+                <button type="button" id="startEditing">Start Editing</button>
+                <button type="button" id="stopEditing">Stop Editing</button>
+              </div>
               <div class="form-group">
                 <label for="numcf" id="numerolabel"> Remarque du comité : </label>
                 <textarea class="form-control" id="remarque" readonly></textarea>
@@ -234,25 +241,44 @@
                 <input type="text" class="form-control" name="observation" id="observation2" required>
               </div>
               
-              <!-- On n'a pas besoin de ce champ si on commence par tracer le polygone pour faire une demande -->
+              <!-- Mettre dans le formulaire les valeurs de id, nom couche et leur geométrie mais masquées -->
               <div class="form-group">
                 <input type="hidden" class="form-control" id="geom2" name="geom" required readonly>
+                <input type="hidden" name="gid" id="gid2">
+                <input type="hidden" name="couche" id="couche2">
               </div>
               
               <div class="form-group">
                 <label for="surface">Surface (m²) :</label>
                 <input type="decimal" class="form-control" name="surface" id="surface2" required>
               </div>
-              
-              <button type="submit" name="demandeRun" class="btn btn-success">Envoyer demande</button>
+              <button type="submit" name="RunUpdate" class="btn btn-success">Mettre à jour</button>
               <button type="button" id="cancelForm-btn" onclick="fermerFormDemande('formDivRect')" class="btn btn-danger" >Annuler</button>
             </form>
           </div>
           <!-- ./formulaire de rectification -->
-          <div id="confirmDiv" style="position: absolute; display: none;">
-            <button type="button" id="validateButton" class="btn btn-success" style="display: none;">Confirmer</button>
-            <button type="button" id="redrawButton" class="btn btn-danger" style="display: none;">Annuler</button>
+
+          <!-- formlaire de refus -->
+          <div id="formDivRefus">
+            <div id="formDivHeader" class="div-header d-flex justify-content-between align-items-center">
+              <h4 id="formTitle">Demande refusée</h4>
+              <div>
+                <button type="button" class="btn" onclick="collapseFormDemande('formrefus')"><i id="collapse" class="fas fa-minus"></i></button>
+                <button type="button" class="btn" onclick="fermerFormDemande('formDivRefus')" id="closeForm"><i class="fas fa-times"></i></button>
+              </div>
+            </div>
+            <form class="form-group" id="formrefus" method="POST" action="functions.php">
+              <div class="form-group">
+                <label for="numcf" id="numerolabel"> Remarque du comité : </label>
+                <textarea class="form-control" id="remarque3" readonly></textarea>
+              </div> 
+              <input type="hidden" name="gid" id="gid3">
+              <input type="hidden" name="couche" id="couche3"> 
+              <button type="submit" name="confirmRefus" class="btn btn-success">OK</button>
+            </form>
           </div>
+          <!-- ./formulaire de refus -->
+         
           <!-- carte -->
           <div id="map" class="map"></div>
           <!-- ./carte -->
@@ -284,10 +310,10 @@ if ($_SESSION['id_entity'] == 2) {
 
  ?>
 <script type="text/javascript">
-	function deconnecter() {
-	    var confirmer = confirm("Voulez-vous vraiment quitter la plateforme ?");
-	    if (confirmer == true ) {
-      	window.location.href="../controllers/DeconectController.php";
+  function deconnecter() {
+      var confirmer = confirm("Voulez-vous vraiment quitter la plateforme ?");
+      if (confirmer == true ) {
+        window.location.href="../controllers/DeconectController.php";
     } else {} }
 
   // afficher le formulaire de demande

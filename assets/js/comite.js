@@ -224,7 +224,8 @@ var certificatSource = new ol.source.TileWMS({
     // 'FORMAT_OPTIONS': "layout:style-editor-legend;fontAntiAliasing:true",
     'RANDOM': 48810829,
     'LEGEND_OPTIONS': 'forceLabels:on;fontAntiAliasing:true',
-    'EXCEPTIONS': 'application/vnd.ogc.se_inimage'
+    'EXCEPTIONS': 'application/vnd.ogc.se_inimage',
+    'CQL_FILTER': 'validee_publiee=true'
   },
   projection: projection,
   serverType: 'geoserver',
@@ -237,29 +238,14 @@ var certificatLayer = new ol.layer.Tile({
 });
 map.addLayer(certificatLayer);
 
-// var sourceWFS = new ol.source.Vector({
-//     format: new ol.format.GeoJSON(),
-//     url: function(extent) {
-//         return 'http://geoserver.gendarmerie.mg:8080/geoserver/wfs?service=WFS&' +
-//                'version=1.1.0&request=GetFeature&typename=M.Cyrille:limite_commune&' +
-//                'outputFormat=application/json&srsname='+projection+'&' +
-//                'bbox=' + extent.join(',') + ','+projection+'';
-//     },
-//     strategy: ol.loadingstrategy.bbox
-// });
-
-// var layerWFS = new ol.layer.Vector({
-//     source: sourceWFS
-// });
-// map.addLayer(layerWFS);
-
-// Afficher la couche en attente en jaune
-var url = geoserverURL+"/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=validee_publiee+=+%27false%27&outputFormat=application/json"; 
+// Afficher en jaune la nouvelle demande
+  //Couche certificat foncier de l'entité `commune`
+var url = geoserverURL+ "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=updated_or_new+=+%27true%27&outputFormat=application/json"; 
 
 var AttentestyleFunction = function(feature) {
   return new ol.style.Style({
     fill: new ol.style.Fill({
-      color: 'transparent'
+      color: 'yellow'
     }),
     stroke: new ol.style.Stroke({
       color: 'yellow',
@@ -349,6 +335,7 @@ function showProperties(couche, entite, gid, numdemande, num, surface, observati
 map.addLayer(CertificatsValideegeojson);
 
 function updateNotification() {
+  // get the notification of the new demande
     $.ajax({
         url: '../gis/functions.php',
         data: {
@@ -357,9 +344,9 @@ function updateNotification() {
         type: 'get',
         dataType: 'json',
         success: function(response) {
-            var notificationNombre = $('#Attentenombre');
+            // var notificationNombre = $('#Attentenombre');
             var Attentenombre = response.length; //nombre sur le tableau geojson
-            notificationNombre.text(Attentenombre);
+            // notificationNombre.text(Attentenombre);
 
             var demandeAttentNot = $('#demandeAttentNot');
             demandeAttentNot.empty();
@@ -371,19 +358,25 @@ function updateNotification() {
                 var coordinates = data.centroid.replace('POINT(', '').replace(')', '').split(' ');
                 var lon = parseFloat(coordinates[0]);
                 var lat = parseFloat(coordinates[1]);
-
                 var div = $('<div>').addClass('dropdown-divider');
                 var a = $('<a>').addClass('dropdown-item');
-
-                if (data.vali) {}
-                a.text( data.entity + " : demande N° " + data.numdemande + " d'un CF");
+                var props = "<p>"+ data.entity +" : "+ data.couche + "</p> demande N° " + data.numdemande + "<p></p>";
+                var div2 = $('<div>');
+                div2.append(props);
+                a.append(div2);
+                // a.text( data.entity + " : demande N° " + data.numdemande + " d'un " + data.couche);
                 a.css('cursor', 'pointer');
+                // a.css('width', '200px');
+                // a.css('overflow', 'clip');
+                // a.css('whiteSpace', 'none');
                 a.on('click', function() { 
+                  setVu(data.gid, data.couche);
                   centerMapTo(lat, lon);
-                  showProperties('Certificat foncier', data.entity,data.gid, data.numdemande, data.numcf, data.surface, data.observation)
-                }); 
+                  showProperties(data.couche, data.entity,data.gid, data.numdemande, data.numcf, data.surface, data.observation)
+                });               
                 demandeAttentNot.append(div);
                 demandeAttentNot.append(a);
+                addStarToUnseen(data, a);
             });
         },
         error: function() {
@@ -391,6 +384,7 @@ function updateNotification() {
         }
     });
 
+    // get the notification demande needs correction
      $.ajax({
         url: '../gis/functions.php',
         data: {
@@ -409,6 +403,7 @@ function updateNotification() {
             span.text(rectifierNombre + ' demandes en attente');
             demandeArecitfierNot.append(span);
             $.each(response.slice(0, 5), function (index, data){
+              addStarToUnseen(data, a);
                 var coordinates = data.centroid.replace('POINT(', '').replace(')', '').split(' ');
                 var lon = parseFloat(coordinates[0]);
                 var lat = parseFloat(coordinates[1]);
@@ -419,7 +414,7 @@ function updateNotification() {
                 a.css('cursor', 'pointer');
                 a.on('click', function() { 
                   centerMapTo(lat, lon);
-                  ShowFormRect();
+
                 }); 
                 demandeArecitfierNot.append(div);
                 demandeArecitfierNot.append(a);
@@ -431,7 +426,64 @@ function updateNotification() {
     });
 }
 
+var previousNombre = 0; // Initialize the previous value of 'nombre'
+function NewNotification(couche) {
+  $.ajax({
+    url: 'vu.php',
+    type: 'POST',
+    data: {
+      action: 'newMessage', attribute : 'updated_or_new'
+    },
+    success: function(response) {
+      var notificationNombre = $('#Attentenombre');
+      var Attentenombre = response[0];
+      notificationNombre.text(Attentenombre);
+      var x = document.createElement("AUDIO");
+
+      if (Attentenombre > previousNombre) {
+        $('#notificationSon')[0].play();
+      }
+
+       previousNombre = Attentenombre;
+    },
+    error: function(error) {
+      console.error(error);
+    }
+  })
+}
+
+
+
+function setVu(gid, couche) {
+
+  $.ajax({
+    url: 'vu.php',
+    type: 'POST',
+    data: {gid: gid, couche: couche, action: 'setvu'},
+    success: function() {
+      NewNotification('certificats');
+    },
+    error: function(error) {
+      console.error(error);
+    }
+  })
+}
+
+function addStarToUnseen(data, a) {
+  var star =$('<span>').addClass("float-right text-sm text-danger");
+  var i = $('<i>').addClass("fas fa-star");
+  star.append(i);
+  if (data.vu == false) {
+    a.append(star);
+  }
+}
+
 $(document).ready(function() {
     updateNotification(); // Appel initial de la fonction pour afficher les notifications
-    setInterval(updateNotification, 5000); // Actualisation des notifications toutes les 5 secondes
+    NewNotification('certificats');
+    setInterval(updateNotification, 500); // Actualisation des notifications toutes les 0.5 secondes
+    setInterval(function() {
+      NewNotification('certificats');
+      }, 500);
+
 });

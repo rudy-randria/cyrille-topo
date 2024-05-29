@@ -1,26 +1,26 @@
 <?php 
-	session_start();
+  session_start();
 
-	if (!$_SESSION['mdp']) {
-		session_destroy();
-		header('location:../index.php');
-	}
+  if (!$_SESSION['mdp']) {
+    session_destroy();
+    header('location:../index.php');
+  }
 
-	// Inclure les ressources communes
-	include_once('../includes/resources.php');
+  // Inclure les ressources communes
+  include_once('../includes/resources.php');
 
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-	<title>Cartographie </title>
-	<link rel="stylesheet" href="../vendor/ol/ol.css"></link>
-	<link rel="stylesheet" type="text/css" href="../assets/css/carte.css">
+  <title>Cartographie </title>
+  <link rel="stylesheet" href="../vendor/ol/ol.css"></link>
+  <link rel="stylesheet" type="text/css" href="../assets/css/carte.css">
   <style type="text/css">
     .navbar-light .navbar-nav .nav-link {
       color: #000;
@@ -56,6 +56,10 @@
 </head>
 <body>
   <div class="wrapper">
+    <!-- notification -->
+    <audio id="notificationSon">
+      <source src="../assets/son.mp3" type="audio/mpeg">
+    </audio>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="margin: 0;">
       <div class="container-fluid">
@@ -85,7 +89,7 @@
                 <span class="dropdown-item dropdown-header" id="DemandeVlideeTitleNot">0 demande à rectifier</span>     
               </div>
             </li>
-            <li class="nav-item dropdown">
+            <!-- <li class="nav-item dropdown">
               <a class="nav-link" data-toggle="dropdown" href="#">
                 Mise à jour
                 <span class="badge badge-warning  navbar-badge" style="background-color: green; color: black;" id="Attentenombre">0</span>        
@@ -93,7 +97,7 @@
               <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                 <span class="dropdown-item dropdown-header" id="DemandeTitleNot">0 Mise à jour</span>
               </div>
-            </li>
+            </li> -->
             <li>
               <button type="button" title="Déconnecter la page" class="btn btn-danger navbar-btn" onclick="deconnecter()"> <i style="color: ;" class="nav-icon fas fa-sign-out-alt" ></i></button>
             </li>
@@ -129,7 +133,7 @@
                 <label for="observation">Observation :</label>
                 <textarea type="text" class="form-control" name="remarque" id="remarque" value='' required></textarea>
               </div>
-              <input type="hidden" name="type" id="coucheChamp">
+              <input type="hidden" name="couche" id="coucheChamp">
               <input type="hidden" name="gid" id="gidChamp"> 
               <div class="form-group">
                 <label for="ref">Résultat :</label>
@@ -137,7 +141,7 @@
                   <option value="">Choisir ici</option>
                   <option value="rectifier">A rectifier</option>
                   <option value="refuser">Refuser</option>
-                  <option value="accepter">Accepter</option>
+                  <option value="valider">valider</option>
                 </select>
               </div>        
               <button type="submit" name="CheckRun" class="btn btn-success">Valider</button>
@@ -161,10 +165,10 @@
 <script src="../vendor/ol/dist/ol.js"></script>
 <script type="module" src="../assets/js/comite.js"></script>
 <script type="text/javascript">
-	function deconnecter() {
-	    var confirmer = confirm("Voulez-vous vraiment quitter la plateforme ?");
-	    if (confirmer == true ) {
-      	window.location.href="../controllers/DeconectController.php";
+  function deconnecter() {
+      var confirmer = confirm("Voulez-vous vraiment quitter la plateforme ?");
+      if (confirmer == true ) {
+        window.location.href="../controllers/DeconectController.php";
     } else {} }
 
   // afficher le formulaire de demande

@@ -43,7 +43,7 @@ function centerMapTo (lat, lon) {
     newview.animate({
       center: [parseFloat(lon), parseFloat(lat)], // Nouveau centre de la carte
       duration: 6000, // Durée de l'animation en millisecondes
-      zoom: 10,
+      Maxzoom: 10,
     });
   }
   // ajouter un marqueur
@@ -225,7 +225,8 @@ var certificatSource = new ol.source.TileWMS({
     // 'FORMAT_OPTIONS': "layout:style-editor-legend;fontAntiAliasing:true",
     'RANDOM': 48810829,
     'LEGEND_OPTIONS': 'forceLabels:on;fontAntiAliasing:true',
-    'EXCEPTIONS': 'application/vnd.ogc.se_inimage'
+    'EXCEPTIONS': 'application/vnd.ogc.se_inimage',
+    // 'CQL_FILTER': 'validee_publiee=\'true\'',
   },
   projection: projection,
   serverType: 'geoserver',
@@ -237,23 +238,6 @@ var certificatLayer = new ol.layer.Tile({
   visible: true
 });
 map.addLayer(certificatLayer);
-
-// var sourceWFS = new ol.source.Vector({
-//     format: new ol.format.GeoJSON(),
-//     url: function(extent) {
-//         return 'http://geoserver.gendarmerie.mg:8080/geoserver/wfs?service=WFS&' +
-//                'version=1.1.0&request=GetFeature&typename=M.Cyrille:limite_commune&' +
-//                'outputFormat=application/json&srsname='+projection+'&' +
-//                'bbox=' + extent.join(',') + ','+projection+'';
-//     },
-//     strategy: ol.loadingstrategy.bbox
-// });
-
-// var layerWFS = new ol.layer.Vector({
-//     source: sourceWFS
-// });
-// map.addLayer(layerWFS);
-
       
 // Créer une couche vectorielle pour afficher les dessins de l'utilisateur
 var vectorLayer = new ol.layer.Vector({
@@ -324,14 +308,46 @@ closeButton.addEventListener('click', function() {
   vectorLayer.getSource().clear();
 });
 
+function updateFeature(area, geom) {
+  const select = new ol.interaction.Select({
+    wrapX: false,
+  });
+
+  const modify = new ol.interaction.Modify({
+    features: select.getFeatures(),
+  });
+  map.addInteraction(select);
+  map.addInteraction(modify);
+ 
+  document.getElementById('stopEditing').addEventListener('click', function () {
+     var confirmer = confirm("Voulez-vous enregister la modification ?");
+    if (confirmer == true) {
+      var modifiedFeatures = select.getFeatures();
+
+      modifiedFeatures.forEach(function (feature) {
+        var geometry = feature.getGeometry();
+        var area = geometry.getArea();
+        var wktWriter = new ol.format.WKT(); // appeler la fonction de convertir les coordonnées du polygon dessuné en format compatible par postgis
+        var wkt = wktWriter.writeGeometry(geometry); //convertir le geometrie en format valide
+        console.log('Modified feature area:', area.toFixed(2) + ' ' + wkt);
+        // remplir les champs surface et geom 
+        document.getElementById('surface2').value = area.toFixed(2);
+        document.getElementById('geom2').value = wkt;
+      });
+    } else {
+      
+    }
+  });
+}
 
 // Afficher la couche en attente en jaune
-var url = geoserverURL+ "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=validee_publiee+=+%27false%27&outputFormat=application/json"; 
+var urldemandeCertificat = geoserverURL+ "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=updated_or_new+=+%27true%27&outputFormat=application/json"; 
+var urldemandePermis = geoserverURL+ "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%permis&CQL_FILTER=updated_or_new+=+%27true%27&outputFormat=application/json"; 
 
 var AttentestyleFunction = function(feature) {
   return new ol.style.Style({
     fill: new ol.style.Fill({
-      color: 'transparent'
+      color: 'yellow'
     }),
     stroke: new ol.style.Stroke({
       color: 'yellow',
@@ -358,7 +374,7 @@ var AttentestyleFunction = function(feature) {
 
 var CertificatsAttentegeojson = new ol.layer.Vector({
   source: new ol.source.Vector({
-    url: url,
+    url: urldemandeCertificat,
     format: new ol.format.GeoJSON()
   }),
   style: AttentestyleFunction // Utilisez la fonction de style ici
@@ -366,21 +382,31 @@ var CertificatsAttentegeojson = new ol.layer.Vector({
 
 map.addLayer(CertificatsAttentegeojson);
 
-// Afficher la couche en attente en jaune
-var url = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=updated_or_new+=+%27true%27&outputFormat=application/json"; 
-var ValideeStyleFunction = function(feature) {
+var PermisAttentegeojson = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    url: urldemandePermis,
+    format: new ol.format.GeoJSON()
+  }),
+  style: AttentestyleFunction // Utilisez la fonction de style ici
+});
+
+map.addLayer(PermisAttentegeojson);
+
+// Afficher la couche demandé à rectifier en bleu
+var url = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=a_rectifier+=+%27true%27&outputFormat=application/json"; 
+var RectifierStyleFunction = function(feature) {
   return new ol.style.Style({
     fill: new ol.style.Fill({
-      color: 'transparent'
+      color: 'blue'
     }),
     stroke: new ol.style.Stroke({
-      color: 'green',
+      color: 'blue',
       width: 3
     }),
     image: new ol.style.Circle({
       radius: 7,
       fill: new ol.style.Fill({
-        color: 'green'
+        color: 'blue'
       })
     }),
     text: new ol.style.Text({
@@ -396,15 +422,56 @@ var ValideeStyleFunction = function(feature) {
   });
 };
 
-var CertificatsValideegeojson = new ol.layer.Vector({
+var CertificatsRectifiergeojson = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    url: url,
+    format: new ol.format.GeoJSON(),
+    wrapX: false,
+  }),
+  style: RectifierStyleFunction // Utilisez la fonction de style ici
+});
+
+map.addLayer(CertificatsRectifiergeojson);
+
+// Afficher la couche demandée refusée en rouge
+var url = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=validee_publiee+=+%27false%27&outputFormat=application/json"; 
+var RefuseeStyleFunction = function(feature) {
+  return new ol.style.Style({
+    fill: new ol.style.Fill({
+      color: 'red'
+    }),
+    stroke: new ol.style.Stroke({
+      color: 'red',
+      width: 3
+    }),
+    image: new ol.style.Circle({
+      radius: 7,
+      fill: new ol.style.Fill({
+        color: 'red'
+      })
+    }),
+    text: new ol.style.Text({
+      text: feature.get('numdemande'),
+      fill: new ol.style.Fill({
+        color: '#000'
+      }),
+      stroke: new ol.style.Stroke({
+        color: '#fff',
+        width: 3
+      })
+    })
+  });
+};
+
+var CertificatsRefuseegeojson = new ol.layer.Vector({
   source: new ol.source.Vector({
     url: url,
     format: new ol.format.GeoJSON()
   }),
-  style: ValideeStyleFunction // Utilisez la fonction de style ici
+  style: RefuseeStyleFunction // Utilisez la fonction de style ici
 });
 
-map.addLayer(CertificatsValideegeojson);
+map.addLayer(CertificatsRefuseegeojson);
 
 function updateNotification() {
 
@@ -417,9 +484,9 @@ function updateNotification() {
         type: 'get',
         dataType: 'json',
         success: function(response) {
-            var notificationNombre = $('#Attentenombre');
+            // var notificationNombre = $('#Attentenombre');
             var Attentenombre = response.length; //nombre sur le tableau geojson
-            notificationNombre.text(Attentenombre);
+            // notificationNombre.text(Attentenombre);
 
             var demandeAttentNot = $('#demandeAttentNot');
             demandeAttentNot.empty();
@@ -434,13 +501,15 @@ function updateNotification() {
 
                 var div = $('<div>').addClass('dropdown-divider');
                 var a = $('<a>').addClass('dropdown-item');
-                a.text('CF : Demande N° ' + data.numdemande );
+                addStarToUnseen(data, a);
+                a.text(data.couche + ' : Demande N° ' + data.numdemande );
                 a.css('cursor', 'pointer');
                 a.on('click', function() { 
                   centerMapTo(lat, lon);
                 }); 
                 demandeAttentNot.append(div);
                 demandeAttentNot.append(a);
+                addStarToUnseen(data, a);
             });
         },
         error: function() {
@@ -517,7 +586,7 @@ function updateNotification() {
                 a.css('cursor', 'pointer');
                 a.on('click', function() { 
                   centerMapTo(lat, lon);
-                  ShowFormRect(data.gid, 'cf', data.observation, data.numcf, data.numdemande, data.surface)
+                  ShowFormRect(data.gid, 'certificats', data.observation, data.numcf, data.numdemande, data.surface)
                 }); 
                 demandeArecitfierNot.append(div);
                 demandeArecitfierNot.append(a);
@@ -548,6 +617,7 @@ function updateNotification() {
             span.text(refuseeNombre + ' demandes en attente');
             demandeRefuseeNot.append(span);
             $.each(response.slice(0, 5), function (index, data){
+              addStarToUnseen(data, a)
                 var coordinates = data.centroid.replace('POINT(', '').replace(')', '').split(' ');
                 var lon = parseFloat(coordinates[0]);
                 var lat = parseFloat(coordinates[1]);
@@ -558,7 +628,7 @@ function updateNotification() {
                 a.css('cursor', 'pointer');
                 a.on('click', function() { 
                   centerMapTo(lat, lon);
-                  ShowFormRect(data.gid, 'cf', data.observation, data.numcf, data.numdemande, data.surface)
+                  showFormRefus(data.observation, data.gid, 'certificats', data.numcf, data.numdemande);
                 }); 
                 demandeRefuseeNot.append(div);
                 demandeRefuseeNot.append(a);
@@ -570,15 +640,68 @@ function updateNotification() {
     });
 }
 
+var previousNombre = 0; // Initialize the previous value of 'nombre'
+function NewNotification(couche) {
+  $.ajax({
+    url: 'vu.php',
+    type: 'POST',
+    data: {
+      action: 'newMessage', attribute : 'updated_or_new'
+    },
+    success: function(response) {
+      var notificationNombre = $('#Attentenombre');
+      var Attentenombre = response[0];
+      notificationNombre.text(Attentenombre);
+      var x = document.createElement("AUDIO");
+
+      if (Attentenombre > previousNombre) {
+        $('#notificationSon')[0].play();
+      }
+
+       previousNombre = Attentenombre;
+    },
+    error: function(error) {
+      console.error(error);
+    }
+  })
+}
+
+
+function addStarToUnseen(data, a) {
+  var star =$('<span>').addClass("float-right text-sm text-danger");
+  var i = $('<i>').addClass("fas fa-star");
+  star.append(i);
+  if (data.vu == false) {
+    a.append(star);
+  }
+}
+
 $(document).ready(function() {
     updateNotification(); // Appel initial de la fonction pour afficher les notifications
     setInterval(updateNotification, 5000); // Actualisation des notifications toutes les 5 secondes
+    setInterval(function() {
+    NewNotification('certificats');
+    }, 500);
 });
 
+// fonction pour recuperer les informations de la couche cliquée et les afficher sur le formulaire
 function ShowFormRect(gid, couche, remarque, numcf, numdemande, surface) {
   document.getElementById('formDivRect').style.display='block';
   document.getElementById('remarque').innerHTML = remarque;
   document.getElementById('numcf2').value = numcf;
   document.getElementById('numdemande2').value = numdemande;
   document.getElementById('surface2').value = surface;
+  document.getElementById('gid2').value = gid;
+  document.getElementById('couche2').value = couche;
+  // Appeler la fonction pour la modification de couche
+  document.getElementById('startEditing').addEventListener('click', function () {
+    updateFeature();
+  });  
+}
+
+function showFormRefus( remarque, gid, couche, numcf, numdemande) {
+  document.getElementById('formDivRefus').style.display='block';
+  document.getElementById('remarque3').innerHTML = 'Demande N° '+numdemande+' d\'un certificat foncier refusée\n Motif : '+ remarque;
+  document.getElementById('gid3').value = gid;
+  document.getElementById('couche3').value = couche;
 }

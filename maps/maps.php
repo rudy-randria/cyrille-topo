@@ -174,7 +174,7 @@
                 <button type="button" class="btn" onclick="fermerFormDemande('formDivDemande')" id="closeForm"><i class="fas fa-times"></i></button>
               </div>
             </div>
-            <form class="form-group" id="formDemande" method="POST" action="functions.php">
+            <form class="form-group" id="formDemande" method="POST" action="../controllers/DemandeController.php">
               <div class="form-group">
                 <label for="ref">Type :</label>
                 <select name="couche" class="form-control" id="ref" required onchange="setLabelNum()">
@@ -206,6 +206,15 @@
               
               <button type="submit" name="demandeRun" class="btn btn-success">Envoyer demande</button>
               <button type="button" id="cancelForm-btn" onclick="fermerFormDemande('formDivDemande')" class="btn btn-danger" >Annuler</button>
+
+              <?php 
+                  if (isset($_SESSION['message'])) {
+                      echo "<script> alert('".$_SESSION['message']."')</script>";
+                      // unset the message session variable so it doesn't persist on refresh
+                      unset($_SESSION['message']);
+                  }
+              ?>
+
             </form>
           </div>
           <!-- ./formulaire de demande -->

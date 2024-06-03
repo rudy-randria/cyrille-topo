@@ -328,7 +328,7 @@ function showProperties(couche, entite, gid, numdemande, num, surface, observati
     properties.innerHTML = props;
     var gidChamp = document.getElementById('gidChamp');
     var coucheChamp = document.getElementById("coucheChamp");
-    coucheChamp.value = 'cf';
+    coucheChamp.value = couche;
     gidChamp.value = gid; //identifier la couche par l'id de la couche choisie
 }
 
@@ -339,7 +339,7 @@ function updateNotification() {
     $.ajax({
         url: '../gis/functions.php',
         data: {
-            couche: 'cercificats', status : 'attente'
+            entite: 'commune', status : 'attente'
         },
         type: 'get',
         dataType: 'json',
@@ -388,7 +388,7 @@ function updateNotification() {
      $.ajax({
         url: '../gis/functions.php',
         data: {
-            couche: 'cercificats', status : 'a_rectifier'
+            entite: 'commune', status : 'a_rectifier'
         },
         type: 'get',
         dataType: 'json',
@@ -410,7 +410,7 @@ function updateNotification() {
 
                 var div = $('<div>').addClass('dropdown-divider');
                 var a = $('<a>').addClass('dropdown-item');
-                a.text('Demande N° : ' + data.numdemande + ' à reviser');
+                a.text(data.entite + ' : Demande ' + data.couche + ' N° : ' + data.numdemande + ' à reviser');
                 a.css('cursor', 'pointer');
                 a.on('click', function() { 
                   centerMapTo(lat, lon);

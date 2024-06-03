@@ -479,7 +479,7 @@ function updateNotification() {
     $.ajax({
         url: '../gis/functions.php',
         data: {
-            couche: 'cercificats', status : 'attente'
+            entite: 'commune', status : 'attente'
         },
         type: 'get',
         dataType: 'json',
@@ -502,7 +502,7 @@ function updateNotification() {
                 var div = $('<div>').addClass('dropdown-divider');
                 var a = $('<a>').addClass('dropdown-item');
                 addStarToUnseen(data, a);
-                a.text(data.couche + ' : Demande N° ' + data.numdemande );
+                a.text(data.couche + ' : Demande N° ' + data.numdemande);
                 a.css('cursor', 'pointer');
                 a.on('click', function() { 
                   centerMapTo(lat, lon);
@@ -521,7 +521,7 @@ function updateNotification() {
     $.ajax({
         url: '../gis/functions.php',
         data: {
-            couche: 'cercificats', status : 'acceptee'
+            entite: 'commune', status : 'acceptee'
         },
         type: 'get',
         dataType: 'json',
@@ -533,7 +533,7 @@ function updateNotification() {
             var demandeValideeNot = $('#demandeValideeNot');
             demandeValideeNot.empty();
             var span = $('<span>').addClass('dropdown-item dropdown-header');
-            span.text(Valideenombre + ' demandes en attente');
+            span.text(Valideenombre + ' demandes validées');
             demandeValideeNot.append(span);
             
             $.each(response.slice(0, 5), function (index, data){
@@ -543,7 +543,7 @@ function updateNotification() {
 
                 var div = $('<div>').addClass('dropdown-divider');
                 var a = $('<a>').addClass('dropdown-item');
-                a.text(data.numdemande);
+                a.text(data.entite + ' : Demande de ' + data.couche + ' N° ' + data.numdemande + ' validée');
                 a.css('cursor', 'pointer');
                 a.on('click', function() { 
                   centerMapTo(lat, lon);
@@ -561,7 +561,7 @@ function updateNotification() {
     $.ajax({
         url: '../gis/functions.php',
         data: {
-            couche: 'cercificats', status : 'a_rectifier'
+            entite: 'commune', status : 'a_rectifier'
         },
         type: 'get',
         dataType: 'json',
@@ -573,7 +573,7 @@ function updateNotification() {
             var demandeArecitfierNot = $('#demandeArecitfierNot');
             demandeArecitfierNot.empty();
             var span = $('<span>').addClass('dropdown-item dropdown-header');
-            span.text(rectifierNombre + ' demandes en attente');
+            span.text(rectifierNombre + ' demandes à recifier');
             demandeArecitfierNot.append(span);
             $.each(response.slice(0, 5), function (index, data){
                 var coordinates = data.centroid.replace('POINT(', '').replace(')', '').split(' ');
@@ -582,7 +582,7 @@ function updateNotification() {
 
                 var div = $('<div>').addClass('dropdown-divider');
                 var a = $('<a>').addClass('dropdown-item');
-                a.text('Demande N° : ' + data.numdemande + ' à reviser');
+                a.text(data.entite + ' : Demande'+ data.couche +'N° : ' + data.numdemande + ' à reviser');
                 a.css('cursor', 'pointer');
                 a.on('click', function() { 
                   centerMapTo(lat, lon);
@@ -602,7 +602,7 @@ function updateNotification() {
     $.ajax({
         url: '../gis/functions.php',
         data: {
-            couche: 'cercificats', status : 'refusee'
+            entite: 'commune', status : 'refusee'
         },
         type: 'get',
         dataType: 'json',
@@ -614,7 +614,7 @@ function updateNotification() {
             var demandeRefuseeNot = $('#demandeRefuseeNot');
             demandeRefuseeNot.empty();
             var span = $('<span>').addClass('dropdown-item dropdown-header');
-            span.text(refuseeNombre + ' demandes en attente');
+            span.text(refuseeNombre + ' demandes refusées');
             demandeRefuseeNot.append(span);
             $.each(response.slice(0, 5), function (index, data){
               addStarToUnseen(data, a)
@@ -624,7 +624,7 @@ function updateNotification() {
 
                 var div = $('<div>').addClass('dropdown-divider');
                 var a = $('<a>').addClass('dropdown-item');
-                a.text('Demande N° : ' + data.numdemande + ' refusée');
+                a.text(data.entite+ ': Demande de '+ data.couche +' N° : ' + data.numdemande + ' refusée');
                 a.css('cursor', 'pointer');
                 a.on('click', function() { 
                   centerMapTo(lat, lon);

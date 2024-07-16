@@ -178,7 +178,11 @@
                 <button type="button" class="btn" onclick="fermerFormDemande('formDivDemande')" id="closeForm"><i class="fas fa-times"></i></button>
               </div>
             </div>
+<<<<<<< HEAD:maps/commune.php
             <form class="form-group" id="formDemande" method="POST" action="../controllers/CommuneController.php">
+=======
+            <form class="form-group" id="formDemande" method="POST" action="../controllers/DemandeController.php">
+>>>>>>> e57a508c1d6f17d009c966f5f708590153af2efe:maps/maps.php
               <div class="form-group">
                 <label for="ref">Type :</label>
                 <select name="couche" class="form-control" id="ref" required onchange="setLabelNum()">
@@ -213,7 +217,17 @@
               <button type="submit" name="demandeRun" class="btn btn-success">Envoyer demande</button>
               <button type="button" id="cancelForm-btn" onclick="fermerFormDemande('formDivDemande')" class="btn btn-danger" >Annuler</button>
 
+<<<<<<< HEAD:maps/commune.php
             
+=======
+              <?php 
+                  if (isset($_SESSION['message'])) {
+                      echo "<script> alert('".$_SESSION['message']."')</script>";
+                      // unset the message session variable so it doesn't persist on refresh
+                      unset($_SESSION['message']);
+                  }
+              ?>
+>>>>>>> e57a508c1d6f17d009c966f5f708590153af2efe:maps/maps.php
 
             </form>
           </div>

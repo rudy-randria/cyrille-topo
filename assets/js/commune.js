@@ -674,7 +674,11 @@ function updateNotification() {
 
                 var div = $('<div>').addClass('dropdown-divider');
                 var a = $('<a>').addClass('dropdown-item');
+<<<<<<< HEAD
                 a.text(data.entite + ' : Demande '+ data.couche +'N° : ' + data.numdemande + ' à reviser');
+=======
+                a.text(data.entite + ' : Demande'+ data.couche +'N° : ' + data.numdemande + ' à reviser');
+>>>>>>> e57a508c1d6f17d009c966f5f708590153af2efe
                 a.css('cursor', 'pointer');
                 a.on('click', function() { 
                   centerMapTo(lat, lon);

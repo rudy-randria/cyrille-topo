@@ -431,7 +431,11 @@ function updateNotification() {
     $.ajax({
         url: '../gis/functions.php',
         data: {
+<<<<<<< HEAD
             entite: 'comite', status : 'attente'
+=======
+            entite: 'commune', status : 'attente'
+>>>>>>> e57a508c1d6f17d009c966f5f708590153af2efe
         },
         type: 'get',
         dataType: 'json',
@@ -480,7 +484,11 @@ function updateNotification() {
      $.ajax({
         url: '../gis/functions.php',
         data: {
+<<<<<<< HEAD
             entite: 'comite', status : 'a_rectifier'
+=======
+            entite: 'commune', status : 'a_rectifier'
+>>>>>>> e57a508c1d6f17d009c966f5f708590153af2efe
         },
         type: 'get',
         dataType: 'json',

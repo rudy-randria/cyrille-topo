@@ -19,6 +19,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             header("Location: ../maps/comite.php");
         } elseif ($_SESSION['id_entity'] == 1) {  //si l'utilisateur connecté est la .
             header("Location: ../maps/admin.php");
+        }
+        elseif ($_SESSION['id_entity'] == 4) {
+            header("Location: ../maps/commune.php");
+        }
+        elseif ($_SESSION['id_entity'] == 3) {
+            header("Location: ../maps/service-foncier.php");
+        }
+        elseif ($_SESSION['id_entity'] == 5) {
+            header("Location: ../maps/amenagement.php");
         } else { //si l'utilisateur connecté est un parmis les autres entités
             header("Location: ../maps/maps.php");
         }

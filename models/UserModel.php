@@ -5,11 +5,11 @@ require_once __DIR__ . '/../config.php';
 class UserModel {
     public function verifyCredentials($username, $password, $test = false) {
         global $db;
-        $stmt = $db->prepare("SELECT id_user,u.id_entity, nom, prenom, tel, mail, poste, login, mot_de_passe, e.name
+        $stmt = $db->prepare("SELECT id_user,u.id_entite, nom, prenom, tel, mail, poste, login, mot_de_passe, e.name
             FROM 
                 public.user_lp u
             JOIN 
-                entity e ON u.id_entity = e.id_entity
+                entity e ON u.id_entite = e.id_entity
             WHERE
                 login =:login AND  mot_de_passe = :mdp
         ");
@@ -27,7 +27,7 @@ class UserModel {
                 $_SESSION['id_user'] = $user['id_user'];
                 $_SESSION['mdp'] = $user['mot_de_passe'];
                 $_SESSION['entite'] = $user['name'];
-                $_SESSION['id_entity'] = $user['id_entity'];
+                $_SESSION['id_entity'] = $user['id_entite'];
             }
             return true;
         } else {

@@ -24,12 +24,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['RunUpdate'])) {
 
 //envoie de formulaire pour repondre une demande
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['CheckRun'])) {
-	if ($_POST['couche'] === 'cf' && $_POST['resultat'] == 'rectifier') {
-		DemandArectifier($_POST['gid']);
-	} elseif ($_POST['couche'] === 'cf' && $_POST['resultat'] == 'valider') {
-		DemandValider($_POST['gid']);
-	} elseif ($_POST['couche'] === 'cf' && $_POST['resultat'] == 'refuser') {
-		DemandRefuser($_POST['gid']);
+	if ($_POST['resultat'] == 'rectifier') {
+		DemandArectifier($_POST['gid'], $_POST['couche']);
+	} elseif ($_POST['resultat'] == 'valider') {
+		DemandValider($_POST['gid'], $_POST['couche']);
+	} elseif ($_POST['resultat'] == 'refuser') {
+		DemandRefuser($_POST['gid'], $_POST['couche']);
 	} else {
 		echo "Erreur";
 	}
@@ -110,7 +110,7 @@ function certificatsUpdate ($gid, $db = null) {
 }
 
 // envoi des rectifications recommandées
-function DemandArectifier ($gid, $db = null) {
+function DemandArectifier ($gid, $couche, $db = null) {
 	if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
         session_start();
     }
@@ -119,7 +119,7 @@ function DemandArectifier ($gid, $db = null) {
         global $db;
     }
 	
-	$update = $db -> prepare("UPDATE public.certificats
+	$update = $db -> prepare("UPDATE public.$couche
 	SET observation=:observation, a_rectifier=true, updated_or_new = NULL
 	WHERE gid = :gid");
 	$update->execute(['gid' => $gid , 'observation' => $_POST['remarque']]);
@@ -127,7 +127,7 @@ function DemandArectifier ($gid, $db = null) {
 }
 
 //validation des demandes
-function DemandValider ($gid, $db = null) {
+function DemandValider ($gid, $couche, $db = null) {
 	if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
         session_start();
     }
@@ -135,7 +135,7 @@ function DemandValider ($gid, $db = null) {
     if ($db === null) {
         global $db;
     }
-	$update = $db -> prepare("UPDATE public.certificats
+	$update = $db -> prepare("UPDATE public.$couche
 	SET observation=:observation, validee_publiee = true, a_rectifier= NULL, updated_or_new = NULL
 	WHERE gid = :gid");
 	$update->execute(['gid' => $gid , 'observation' => $_POST['remarque']]);
@@ -143,7 +143,7 @@ function DemandValider ($gid, $db = null) {
 }
 
 // demande refusée
-function DemandRefuser ($gid, $db = null) {
+function DemandRefuser ($gid, $couche, $db = null) {
 	if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
         session_start();
     }
@@ -151,7 +151,7 @@ function DemandRefuser ($gid, $db = null) {
     if ($db === null) {
         global $db;
     }
-	$update = $db -> prepare("UPDATE public.certificats
+	$update = $db -> prepare("UPDATE public.$couche
 	SET observation=:observation, validee_publiee = false, a_rectifier= NULL, updated_or_new = NULL
 	WHERE gid = :gid");
 	$update->execute(['gid' => $gid , 'observation' => $_POST['remarque']]);

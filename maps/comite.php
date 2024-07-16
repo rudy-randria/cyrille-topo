@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <title>Cartographie </title>
+  <title>Cartographie - Comite de validation </title>
   <link rel="stylesheet" href="../vendor/ol/ol.css"></link>
   <link rel="stylesheet" type="text/css" href="../assets/css/carte.css">
   <style type="text/css">
@@ -63,7 +63,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="margin: 0;">
       <div class="container-fluid">
-        <a class="navbar-brand" href="javascript:void(0)" id="entite"><?=$_SESSION['entite']?></a>
+        <a class="navbar-brand" href="javascript:void(0)" id="entite">COMITE DE VALIDATION</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -124,7 +124,7 @@
                 <button type="button" class="btn" onclick="fermerFormDemande()" id="closeForm"><i class="fas fa-times"></i></button>
               </div>
             </div>
-            <form class="form-group" id="formDemande" method="POST" action="functions.php">
+            <form class="form-group" id="formDemande" method="POST" action="../controllers/ComiteController.php">
               <div class="form-group">
                 <label for="numcf" id="numerolabel"> Propriétés </label>
                 <div id="properties"></div>

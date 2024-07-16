@@ -123,7 +123,7 @@ var Hydrolignelayer = new ol.layer.Tile({
   source: HydroligneSource,
   visible: true
 }); 
-  // map.addLayer(Hydrolignelayer);
+  map.addLayer(Hydrolignelayer);
 
 // couche Hydrographie linéaire
 var HydrozoneSource = new ol.source.TileWMS({
@@ -140,9 +140,29 @@ var HydrozoneSource = new ol.source.TileWMS({
 var Hydrozonelayer = new ol.layer.Tile({
   source: HydroligneSource,
   visible: true
-}); 
-// map.addLayer(Hydrozonelayer);
+}); map.addLayer(Hydrozonelayer);
 
+// couche limite administratice de commune Urbaine Antsirabe
+var limCommuneSource = new ol.source.TileWMS({
+  url: url,
+  params: {
+    'FORMAT': "image/png",
+    'VERSION': '1.1.1',
+    'LAYERS' : 'M.Cyrille:limite_commune',
+    'TILED' : true,
+    "exceptions": 'application/vnd.ogc.se_inimage',
+    tilesOrigin: 438489.154449653 + "," + 647569.817114414
+  },
+  projection: projection,
+  serverType: 'geoserver',
+  attributions: 'Limite_Adm_Commune'
+});
+var limiteCommuneLayer = new ol.layer.Tile({
+  source: limCommuneSource,
+  title: 'Limite_Adm_Commune',
+  visible: true
+ }); 
+// map.addLayer(limiteCommuneLayer);
 
 var orthosource = new ol.source.TileWMS({
   url: url,
@@ -167,29 +187,6 @@ var ortholayer = new ol.layer.Tile({
 });
 map.addLayer(ortholayer);
 ortholayer.setZIndex(-100);
-
-// couche limite administratice de commune Urbaine Antsirabe
-var limCommuneSource = new ol.source.TileWMS({
-  url: url,
-  params: {
-    'FORMAT': "image/png",
-    'VERSION': '1.1.1',
-    'LAYERS' : 'M.Cyrille:limite_commune',
-    'TILED' : true,
-    "exceptions": 'application/vnd.ogc.se_inimage',
-    tilesOrigin: 438489.154449653 + "," + 647569.817114414
-  },
-  projection: projection,
-  serverType: 'geoserver',
-  attributions: 'Limite_Adm_Commune'
-});
-var limiteCommuneLayer = new ol.layer.Tile({
-  source: limCommuneSource,
-  title: 'Limite_Adm_Commune',
-  visible: true
- }); 
-// map.addLayer(limiteCommuneLayer);
-
 // couche PUDI de commune Urbaine Antsirabe
 var pudisource = new ol.source.TileWMS({
   url: url,
@@ -219,7 +216,7 @@ var plofsource = new ol.source.TileWMS({
   url: url,
   params: {
     'LAYERS': 'M.Cyrille:vw_plof',
-    'STYLES': 'M.Cyrille:vw_plof',
+    // 'STYLES': 'landplateform:_plof',
     'VERSION': '1.1.1',
     'FORMAT': 'image/png',
     // 'FORMAT_OPTIONS': "layout:style-editor-legend;fontAntiAliasing:true",
@@ -415,8 +412,8 @@ map.getView().on('change:resolution', function() {
 }
 
 // Afficher la couche en attente en jaune
-var urldemandeCertificat = geoserverURL+ "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=updated_or_new+=+%27true%27&outputFormat=application/json"; 
-var urldemandePermis = geoserverURL+ "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20permis&CQL_FILTER=updated_or_new+=+%27true%27&outputFormat=application/json"; 
+var urldemandepudi = geoserverURL+ "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20pudi&CQL_FILTER=updated_or_new+=+%27true%27&outputFormat=application/json"; 
+// var urldemandePermis = geoserverURL+ "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20permis&CQL_FILTER=updated_or_new+=+%27true%27&outputFormat=application/json"; 
 
 var AttentestyleFunction = function(feature) {
   return new ol.style.Style({
@@ -446,29 +443,20 @@ var AttentestyleFunction = function(feature) {
   });
 };
 
-var CertificatsAttentegeojson = new ol.layer.Vector({
+var pudiattentegeojson = new ol.layer.Vector({
   source: new ol.source.Vector({
-    url: urldemandeCertificat,
+    url: urldemandepudi,
     format: new ol.format.GeoJSON()
   }),
   style: AttentestyleFunction // Utilisez la fonction de style ici
 });
 
-map.addLayer(CertificatsAttentegeojson);
+map.addLayer(pudiattentegeojson);
 
-var PermisAttentegeojson = new ol.layer.Vector({
-  source: new ol.source.Vector({
-    url: urldemandePermis,
-    format: new ol.format.GeoJSON()
-  }),
-  style: AttentestyleFunction // Utilisez la fonction de style ici
-});
-
-map.addLayer(PermisAttentegeojson);
 
 // Afficher la couche demandé à rectifier en bleu
-var certificatArectifierurl = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=a_rectifier+=+%27true%27&outputFormat=application/json"; 
-var permisArectifierUrl = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20permis&CQL_FILTER=a_rectifier+=+%27true%27&outputFormat=application/json"; 
+var pudiArectifierurl = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20pudi&CQL_FILTER=a_rectifier+=+%27true%27&outputFormat=application/json"; 
+// var permisArectifierUrl = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20permis&CQL_FILTER=a_rectifier+=+%27true%27&outputFormat=application/json"; 
 var RectifierStyleFunction = function(feature) {
   return new ol.style.Style({
     fill: new ol.style.Fill({
@@ -497,30 +485,21 @@ var RectifierStyleFunction = function(feature) {
   });
 };
 
-var CertificatsRectifiergeojson = new ol.layer.Vector({
+var pudiRectifiergeojson = new ol.layer.Vector({
   source: new ol.source.Vector({
-    url: certificatArectifierurl,
+    url: pudiArectifierurl,
     format: new ol.format.GeoJSON(),
     wrapX: false,
   }),
   style: RectifierStyleFunction // Utilisez la fonction de style ici
 });
 
-map.addLayer(CertificatsRectifiergeojson);
+map.addLayer(pudiRectifiergeojson);
 
-var permisRectifiergeojson = new ol.layer.Vector({
-  source: new ol.source.Vector({
-    url: permisArectifierUrl,
-    format: new ol.format.GeoJSON(),
-    wrapX: false,
-  }),
-  style: RectifierStyleFunction // Utilisez la fonction de style ici
-});
 
-map.addLayer(permisRectifiergeojson);
 
 // Afficher la couche demandée refusée en rouge
-var url = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=validee_publiee+=+%27false%27&outputFormat=application/json"; 
+var urlpudirefuse = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20pudi&CQL_FILTER=validee_publiee+=+%27false%27&outputFormat=application/json"; 
 var RefuseeStyleFunction = function(feature) {
   return new ol.style.Style({
     fill: new ol.style.Fill({
@@ -549,24 +528,25 @@ var RefuseeStyleFunction = function(feature) {
   });
 };
 
-var CertificatsRefuseegeojson = new ol.layer.Vector({
+var pudiRefuseegeojson = new ol.layer.Vector({
   source: new ol.source.Vector({
-    url: url,
+    url: urlpudirefuse,
     format: new ol.format.GeoJSON()
   }),
   style: RefuseeStyleFunction // Utilisez la fonction de style ici
 });
 
-map.addLayer(CertificatsRefuseegeojson);
-var previousNombre = 0;
-
+map.addLayer(pudiRefuseegeojson);
+var previousNombre1 = 0;
+var previousNombre2 = 0;
+var previousNombre3 = 0;
 function updateNotification() {
-
+var previousNombre1 = 0;
   // Récupérer les demandes en attente
     $.ajax({
         url: '../gis/functions.php',
         data: {
-            entite: 'commune', status : 'attente'
+            entite: 'amenagement', status : 'attente'
         },
         type: 'get',
         dataType: 'json',
@@ -608,7 +588,7 @@ function updateNotification() {
     $.ajax({
         url: '../gis/functions.php',
         data: {
-            entite: 'commune', status : 'acceptee'
+            entite: 'amenagement', status : 'acceptee'
         },
         type: 'get',
         dataType: 'json',
@@ -639,10 +619,10 @@ function updateNotification() {
                 demandeValideeNot.append(a);
             });
 
-          if (Valideenombre > previousNombre) {
+          if (Valideenombre > previousNombre1) {
             $('#notificationSon')[0].play();
           }
-          previousNombre = Valideenombre;
+          previousNombre1 = Valideenombre;
         },
         error: function() {
             console.log('Error retrieving notifications');
@@ -653,7 +633,7 @@ function updateNotification() {
     $.ajax({
         url: '../gis/functions.php',
         data: {
-            entite: 'commune', status : 'a_rectifier'
+            entite: 'amenagement', status : 'a_rectifier'
         },
         type: 'get',
         dataType: 'json',
@@ -684,10 +664,10 @@ function updateNotification() {
                 demandeArecitfierNot.append(a);
             });
 
-          if (rectifierNombre > previousNombre) {
+          if (rectifierNombre > previousNombre2) {
             $('#notificationSon')[0].play();
           }
-          previousNombre = rectifierNombre;
+          previousNombre2 = rectifierNombre;
         },
         error: function() {
             console.log('Error retrieving notifications');
@@ -699,7 +679,7 @@ function updateNotification() {
     $.ajax({
         url: '../gis/functions.php',
         data: {
-            entite: 'commune', status : 'refusee'
+            entite: 'amenagement', status : 'refusee'
         },
         type: 'get',
         dataType: 'json',
@@ -731,10 +711,10 @@ function updateNotification() {
                 demandeRefuseeNot.append(a);
             });
 
-          if (refuseeNombre > previousNombre) {
+          if (refuseeNombre > previousNombre3) {
             $('#notificationSon')[0].play();
           }
-          previousNombre = refuseeNombre;
+          previousNombre3 = refuseeNombre;
         },
         error: function() {
             console.log('Error retrieving notifications');
@@ -748,7 +728,7 @@ function NewNotification(couche) {
     url: 'vu.php',
     type: 'POST',
     data: {
-      action: 'newMessageCommune', attribute : 'updated_or_new'
+      action: 'newMessageAmenagement', attribute : 'updated_or_new'
     },
     success: function(response) {
       var notificationNombre = $('#Attentenombre');
@@ -781,6 +761,9 @@ function addStarToUnseen(data, a) {
 $(document).ready(function() {
     updateNotification(); // Appel initial de la fonction pour afficher les notifications
     setInterval(updateNotification, 5000); // Actualisation des notifications toutes les 5 secondes
+    setInterval(function() {
+      NewNotification('certificats');
+      }, 5000);
 });
 
 // fonction pour recuperer les informations de la couche cliquée et les afficher sur le formulaire
@@ -788,7 +771,6 @@ function ShowFormRect(gid, couche, remarque, numcf, numdemande, surface) {
   document.getElementById('formDivRect').style.display='block';
   document.getElementById('remarque').innerHTML = remarque;
   document.getElementById('numcf2').value = numcf;
-  document.getElementById('numdemande2').value = numdemande;
   document.getElementById('surface2').value = surface;
   document.getElementById('gid2').value = gid;
   document.getElementById('couche2').value = couche;

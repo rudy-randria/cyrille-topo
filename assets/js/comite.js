@@ -238,6 +238,30 @@ var certificatLayer = new ol.layer.Tile({
 });
 map.addLayer(certificatLayer);
 
+var dpesource = new ol.source.TileWMS({
+  url: url,
+  params: {
+    'LAYERS': 'M.Cyrille:dpe',
+    // 'STYLES': 'M.Cyrille:vw_plof',
+    'VERSION': '1.1.1',
+    'FORMAT': 'image/png',
+    // 'FORMAT_OPTIONS': "layout:style-editor-legend;fontAntiAliasing:true",
+    'RANDOM': 48810829,
+    'LEGEND_OPTIONS': 'forceLabels:on;fontAntiAliasing:true',
+    'EXCEPTIONS': 'application/vnd.ogc.se_inimage',
+    'CQL_FILTER': 'validee_publiee=\'true\'',
+  },
+  projection: projection,
+  serverType: 'geoserver',
+  ratio: 1
+});
+
+var dpelayer = new ol.layer.Tile({
+  source: dpesource,
+  visible: true
+});
+map.addLayer(dpelayer);
+
 // Afficher en jaune la nouvelle demande
   //Couche certificat foncier de l'entité `commune`
 var url = geoserverURL+ "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=updated_or_new+=+%27true%27&outputFormat=application/json"; 
@@ -278,7 +302,73 @@ var CertificatsAttentegeojson = new ol.layer.Vector({
   style: AttentestyleFunction // Utilisez la fonction de style ici
 });
 
-map.addLayer(CertificatsAttentegeojson);
+  map.addLayer(CertificatsAttentegeojson);
+
+// Afficher la couche en attente en jaune
+var urldemandeDPE = geoserverURL+ "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20dpe&CQL_FILTER=updated_or_new+=+%27true%27&outputFormat=application/json"; 
+// var urldemandePermis = geoserverURL+ "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20permis&CQL_FILTER=updated_or_new+=+%27true%27&outputFormat=application/json"; 
+
+var dpeAttentegeojson = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    url: urldemandeDPE,
+    format: new ol.format.GeoJSON()
+  }),
+  style: AttentestyleFunction // Utilisez la fonction de style ici
+});
+
+map.addLayer(dpeAttentegeojson);
+// Afficher la couche demandé à rectifier en bleu
+var certificatArectifierurl = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=a_rectifier+=+%27true%27&outputFormat=application/json"; 
+var permisArectifierUrl = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20permis&CQL_FILTER=a_rectifier+=+%27true%27&outputFormat=application/json"; 
+var RectifierStyleFunction = function(feature) {
+  return new ol.style.Style({
+    fill: new ol.style.Fill({
+      color: 'blue'
+    }),
+    stroke: new ol.style.Stroke({
+      color: 'blue',
+      width: 3
+    }),
+    image: new ol.style.Circle({
+      radius: 7,
+      fill: new ol.style.Fill({
+        color: 'blue'
+      })
+    }),
+    text: new ol.style.Text({
+      text: feature.get('numdemande'),
+      fill: new ol.style.Fill({
+        color: '#000'
+      }),
+      stroke: new ol.style.Stroke({
+        color: '#fff',
+        width: 3
+      })
+    })
+  });
+};
+
+var CertificatsRectifiergeojson = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    url: certificatArectifierurl,
+    format: new ol.format.GeoJSON(),
+    wrapX: false,
+  }),
+  style: RectifierStyleFunction // Utilisez la fonction de style ici
+});
+
+map.addLayer(CertificatsRectifiergeojson);
+
+var permisRectifiergeojson = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    url: permisArectifierUrl,
+    format: new ol.format.GeoJSON(),
+    wrapX: false,
+  }),
+  style: RectifierStyleFunction // Utilisez la fonction de style ici
+});
+
+map.addLayer(permisRectifiergeojson);
 
 // Afficher la couche en attente en jaune
 var url = geoserverURL + "/geoserver/M.Cyrille/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=%20certificats&CQL_FILTER=validee_publiee+=+%27true%27&outputFormat=application/json"; 
@@ -319,6 +409,10 @@ var CertificatsValideegeojson = new ol.layer.Vector({
   style: ValideeStyleFunction // Utilisez la fonction de style ici
 });
 
+
+  map.addLayer(CertificatsValideegeojson);
+
+
 function showProperties(couche, entite, gid, numdemande, num, surface, observation) {
     var checkingFrom = document.getElementById('formCheckingDiv');
     checkingFrom.style.display = 'block';
@@ -328,18 +422,16 @@ function showProperties(couche, entite, gid, numdemande, num, surface, observati
     properties.innerHTML = props;
     var gidChamp = document.getElementById('gidChamp');
     var coucheChamp = document.getElementById("coucheChamp");
-    coucheChamp.value = 'cf';
+    coucheChamp.value = couche;
     gidChamp.value = gid; //identifier la couche par l'id de la couche choisie
 }
-
-map.addLayer(CertificatsValideegeojson);
 
 function updateNotification() {
   // get the notification of the new demande
     $.ajax({
         url: '../gis/functions.php',
         data: {
-            couche: 'cercificats', status : 'attente'
+            entite: 'comite', status : 'attente'
         },
         type: 'get',
         dataType: 'json',
@@ -388,7 +480,7 @@ function updateNotification() {
      $.ajax({
         url: '../gis/functions.php',
         data: {
-            couche: 'cercificats', status : 'a_rectifier'
+            entite: 'comite', status : 'a_rectifier'
         },
         type: 'get',
         dataType: 'json',
@@ -410,11 +502,10 @@ function updateNotification() {
 
                 var div = $('<div>').addClass('dropdown-divider');
                 var a = $('<a>').addClass('dropdown-item');
-                a.text('Demande N° : ' + data.numdemande + ' à reviser');
+                a.text(data.entite + ' : Demande ' + data.couche + ' N° : ' + data.numdemande + ' à reviser');
                 a.css('cursor', 'pointer');
                 a.on('click', function() { 
                   centerMapTo(lat, lon);
-
                 }); 
                 demandeArecitfierNot.append(div);
                 demandeArecitfierNot.append(a);
@@ -432,7 +523,7 @@ function NewNotification(couche) {
     url: 'vu.php',
     type: 'POST',
     data: {
-      action: 'newMessage', attribute : 'updated_or_new'
+      action: 'newMessageComite', attribute : 'updated_or_new'
     },
     success: function(response) {
       var notificationNombre = $('#Attentenombre');
@@ -481,9 +572,9 @@ function addStarToUnseen(data, a) {
 $(document).ready(function() {
     updateNotification(); // Appel initial de la fonction pour afficher les notifications
     NewNotification('certificats');
-    setInterval(updateNotification, 500); // Actualisation des notifications toutes les 0.5 secondes
+    setInterval(updateNotification, 5000); // Actualisation des notifications toutes les 0.5 secondes
     setInterval(function() {
       NewNotification('certificats');
-      }, 500);
+      }, 5000);
 
 });

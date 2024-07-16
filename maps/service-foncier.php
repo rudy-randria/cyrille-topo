@@ -48,7 +48,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <title>Cartographie </title>
+  <title>Cartographie - service foncier </title>
   <link rel="stylesheet" href="../vendor/ol/ol.css"></link>
   <link rel="stylesheet" type="text/css" href="../assets/css/carte.css">
   <style type="text/css">
@@ -92,10 +92,14 @@
 </head>
 <body>
   <div class="wrapper">
+    <!-- notification -->
+    <audio id="notificationSon">
+      <source src="../assets/son.mp3" type="audio/mpeg">
+    </audio>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="margin: 0;">
       <div class="container-fluid">
-        <a class="navbar-brand" href="javascript:void(0)"><?=$_SESSION['entite']?></a>
+        <a class="navbar-brand" href="javascript:void(0)">SERVICE FONCIER</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -174,24 +178,26 @@
                 <button type="button" class="btn" onclick="fermerFormDemande('formDivDemande')" id="closeForm"><i class="fas fa-times"></i></button>
               </div>
             </div>
-            <form class="form-group" id="formDemande" method="POST" action="functions.php">
+            <form class="form-group" id="formDemande" method="POST" action="../controllers/servicefoncierController.php">
               <div class="form-group">
                 <label for="ref">Type :</label>
                 <select name="couche" class="form-control" id="ref" required onchange="setLabelNum()">
-                  <?= $select; ?>
+                  <option value=''>Choisir ici</option>
+                 <option value='dpe'>Domaine privé de l'Etat</option>
+                 <option value='ppnt'>Propriété Privé Non Titrée</option>
+                 <option value='titre'>Titre</option>
+                 <option value='cadastre'>Plan cadastral</option>
+                 <option value='plof'>Plan Local d'Occupation Foncière</option>
                 </select>
               </div>
               <div class="form-group">
-                <label for="numcf" id="numerolabel"> Numero : </label>
-                <input type="text" class="form-control" name="numcf" id="numcf" required>
+                <label for="code" id="numerolabel"> Numero / Code : </label>
+                <input type="text" class="form-control" name="code" id="code" required>
               </div>
-              <div class="form-group">
-                <label for="numdemande">Numero demande :</label>
-                <input type="text" name="numdemande" class="form-control" id="numdemande" required>
-              </div>
+            
               <div class="form-group">
                 <label for="observation">Observation :</label>
-                <input type="text" class="form-control" name="observation" id="observation" required>
+                <textarea class="form-control" name="observation" id="observation" required></textarea>
               </div>
               
                <!-- Mettre dans le formulaire le valeur de geométrie mais masquée-->
@@ -206,6 +212,15 @@
               
               <button type="submit" name="demandeRun" class="btn btn-success">Envoyer demande</button>
               <button type="button" id="cancelForm-btn" onclick="fermerFormDemande('formDivDemande')" class="btn btn-danger" >Annuler</button>
+
+              <?php 
+                  if (isset($_SESSION['message'])) {
+                      echo "<script> alert('".$_SESSION['message']."')</script>";
+                      // unset the message session variable so it doesn't persist on refresh
+                      unset($_SESSION['message']);
+                  }
+              ?>
+
             </form>
           </div>
           <!-- ./formulaire de demande -->
@@ -219,7 +234,7 @@
                 <button type="button" class="btn" onclick="fermerFormDemande('formDivRect')" id="closeForm"><i class="fas fa-times"></i></button>
               </div>
             </div>
-            <form class="form-group" id="formrectification" method="POST" action="functions.php">
+            <form class="form-group" id="formrectification" method="POST" action="../controllers/servicefoncierController.php">
               <div class="form-group">
                 <button type="button" id="startEditing">Start Editing</button>
                 <button type="button" id="stopEditing">Stop Editing</button>
@@ -229,21 +244,17 @@
                 <textarea class="form-control" id="remarque" readonly></textarea>
               </div>              
               <div class="form-group">
-                <label for="numcf" id="numerolabel"> Numero : </label>
+                <label for="numcf" id="numerolabel"> Numero / code: </label>
                 <input type="text" class="form-control" name="numcf" id="numcf2" required>
               </div>
               <div class="form-group">
-                <label for="numdemande">Numero demande :</label>
-                <input type="text" name="numdemande" class="form-control" id="numdemande2" required>
-              </div>
-              <div class="form-group">
                 <label for="observation">Observation :</label>
-                <input type="text" class="form-control" name="observation" id="observation2" required>
+                <textarea type="text" class="form-control" name="observation" id="observation2" required></textarea>
               </div>
               
               <!-- Mettre dans le formulaire les valeurs de id, nom couche et leur geométrie mais masquées -->
               <div class="form-group">
-                <input type="hidden" class="form-control" id="geom2" name="geom" required readonly>
+                <input type="text" class="form-control" id="geom2" name="geom" required readonly>
                 <input type="hidden" name="gid" id="gid2">
                 <input type="hidden" name="couche" id="couche2">
               </div>
@@ -267,7 +278,7 @@
                 <button type="button" class="btn" onclick="fermerFormDemande('formDivRefus')" id="closeForm"><i class="fas fa-times"></i></button>
               </div>
             </div>
-            <form class="form-group" id="formrefus" method="POST" action="functions.php">
+            <form class="form-group" id="formrefus" method="POST" action="../controllers/servicefoncierController.php">
               <div class="form-group">
                 <label for="numcf" id="numerolabel"> Remarque du comité : </label>
                 <textarea class="form-control" id="remarque3" readonly></textarea>
@@ -293,22 +304,8 @@
   </div>
 <script src="../vendor/proj4/proj4.js"></script>
 <script src="../vendor/ol/dist/ol.js"></script>
-
-<?php //Controler ici l'affichage de carte selon l'entite connectée
-
-if ($_SESSION['id_entity'] == 2) {
-  echo '<script type="module" src="../assets/js/autres.js"></script>';
-} elseif ($_SESSION['id_entity'] == 3) {
-  echo '<script type="module" src="../assets/js/servicefoncier.js"></script>';
-} elseif ($_SESSION['id_entity'] == 4) {
-  echo '<script type="module" src="../assets/js/commune.js"></script>';
-} elseif ($_SESSION['id_entity'] == 5) {
-  echo '<script type="module" src="../assets/js/ammenagement.js"></script>';
-} else {
-  echo "Erreur";
-}
-
- ?>
+<script type="module" src="../assets/js/serviceFoncier.js"></script>
+<!--  -->
 <script type="text/javascript">
   function deconnecter() {
       var confirmer = confirm("Voulez-vous vraiment quitter la plateforme ?");
@@ -337,7 +334,7 @@ if ($_SESSION['id_entity'] == 2) {
   function setLabelNum() {
     var select = document.getElementById("ref");
     var selectedValue = select.options[select.selectedIndex].value;
-    document.getElementById("numerolabel").innerHTML = "Numero " + selectedValue.toUpperCase() + " : ";
+    document.getElementById("numerolabel").innerHTML = "Code " + selectedValue.toUpperCase() + " : ";
 }
 
 

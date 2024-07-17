@@ -652,11 +652,18 @@ function updateNotification() {
                 demandeValideeNot.append(div);
                 demandeValideeNot.append(a);
             });
+            var previousNombre = document.getElementById('nbrDmdValVue').value;
+            console.log(previousNombre, Valideenombre);
             if (Valideenombre > previousNombre) {
               $('#notificationSon')[0].play();
+              console.log("demandes validées");
             }
-
-             previousNombre = Valideenombre;
+            previousNombre = Valideenombre;
+            // Sélectionner l'input caché
+            var inputCache = document.getElementById('nbrDmdValVue');
+            
+            // Changer la valeur de l'input caché
+            inputCache.value = previousNombre;
         },
         error: function() {
             console.log('Error retrieving notifications');

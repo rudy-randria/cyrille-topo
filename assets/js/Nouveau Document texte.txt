@@ -1,0 +1,38 @@
+function updateNotification() {
+    $.ajax({
+        url: '../gis/functions.php',
+        data: {
+            couche: 'certificats', status : 'attente'
+        },
+        type: 'get',
+        dataType: 'json',
+        success: function(response) {
+            var notificationNombre = $('#Attentenombre');
+            var Attentenombre = response.length; //nombre sur le tableau geojson
+            notificationNombre.text(Attentenombre);
+
+            // var displayLimit = 4; // Limit the display of messages
+            // var dropdownMenu = $('#notification');
+            // dropdownMenu.empty(); // Clear the dropdown menu content
+
+            // $.each(response.features.slice(0, displayLimit), function (index, data) {
+            //     var message = createMessageElement(data.properties, data.geometry); // Access properties in GeoJSON
+            //     dropdownMenu.append(message);
+            // });
+            //     var showAllButton = $('<a target ="contenu" href="../../pages/journals/journals.html">')
+            //         .addClass('dropdown-item dropdown-footer')
+            //         .text('Voir tous les journals de mission');
+            //     dropdownMenu.append(showAllButton);
+            //     showAllButton.css('cursor', 'pointer');
+                
+        },
+        error: function() {
+            console.log('Error retrieving notifications');
+        }
+    });
+}
+
+$(document).ready(function() {
+    updateNotification(); // Appel initial de la fonction pour afficher les notifications
+    setInterval(updateNotification, 5000); // Actualisation des notifications toutes les 5 secondes
+});

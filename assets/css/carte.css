@@ -1,0 +1,60 @@
+/*style de l'interface de la carte*/
+ * {
+  padding: 0;
+  margin: 0;
+ }
+
+ #map {
+  width: 100%;
+  min-height: 548px;
+  height: 91vh;
+  background-color: #D5DBDB;
+}
+
+
+.ol-outils {
+  display: flex;
+  flex-direction: column; /* Changez ici */
+/*  align-items: start;*/
+  background: none;
+  background-color: #CCD1D1;
+  opacity: 80%;
+  width: fit-content;
+  height: auto;
+  position: fixed;
+  right: 10px;
+  top: 100px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0px;
+  border-radius: 30px;
+  border-top:1px solid #34495E;
+  border-bottom: 1px solid #34495E;
+}
+
+.ol-outils div {
+  position: block;
+  position: relative;
+}
+
+.ol-outils button {
+  display: flex;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  text-align: center;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid #34495E;
+  border-radius: 3px;
+  padding: 5px;
+}
+
+.ol-outils button:hover{
+  background-color: khaki;
+}
+
+.ol-outils button.clicked{
+  background-color: dimgrey;
+}
